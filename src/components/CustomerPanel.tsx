@@ -68,6 +68,7 @@ export default function CustomerPanel({
   const [typeText, setTypeText] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("MOTORCYCLE");
   const [pickupId, setPickupId] = useState("pak_ayob");
+  const [pickupText, setPickupText] = useState("");
   const [dropoffId, setDropoffId] = useState("flat_sentosa");
   const [notes, setNotes] = useState("");
   const [fee, setFee] = useState(6.00);
@@ -85,6 +86,7 @@ export default function CustomerPanel({
     if (selectedMapLocation) {
       if (selectedMapLocation.type === "shop") {
         setPickupId(selectedMapLocation.id);
+        setPickupText(selectedMapLocation.name);
         setActiveTab("custom");
       } else {
         setDropoffId(selectedMapLocation.id);
@@ -137,12 +139,39 @@ export default function CustomerPanel({
     const availableLocs = Object.values(currentLocations);
     if (availableLocs.length === 0) return;
 
+    // Titik mula: gunakan kedai berdaftar jika nama sepadan, jika tidak bina lokasi custom dari teks
+    const matchedShop = Object.values(currentLocations).find(
+      (l) => l.name.trim().toLowerCase() === pickupText.trim().toLowerCase()
+    );
+    const pickupLocation: Location = matchedShop
+      ? matchedShop
+      : pickupText.trim()
+        ? {
+            id: `custom-pickup-${Date.now()}`,
+            name: pickupText.trim(),
+            type: "shop",
+            x: 30,
+            y: 30,
+            address: pickupText.trim(),
+          }
+        : currentLocations[pickupId] || availableLocs[0];
+
+    // Destinasi hantar: guna alamat pelanggan
+    const dropoffLocation: Location = {
+      id: `customer-dropoff-${Date.now()}`,
+      name: customerName.trim() || "Alamat Pelanggan",
+      type: "residential",
+      x: 70,
+      y: 70,
+      address: customerAddress.trim(),
+    };
+
     onCreateOrder({
       title: title.trim(),
       type: type,
       vehicleType: vehicleType,
-      pickupLocation: currentLocations[pickupId] || availableLocs[0],
-      dropoffLocation: currentLocations[dropoffId] || availableLocs[1] || availableLocs[0],
+      pickupLocation,
+      dropoffLocation,
       items: items,
       fee: fee,
       totalCost: estimatedCost,
@@ -161,6 +190,7 @@ export default function CustomerPanel({
   const handleSelectShop = (shop: Location) => {
     // Pilih kedai berdaftar → tukar ke tab custom & set pickup
     setPickupId(shop.id);
+    setPickupText(shop.name);
     setActiveTab("custom");
   };
 
@@ -473,41 +503,39 @@ export default function CustomerPanel({
               </div>
             </div>
 
-            {/* Pickup & Dropoff Selectors */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1 text-amber-500">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>Titik Mula / Kedai</span>
-                </label>
-                <select
-                  value={pickupId}
-                  onChange={(e) => setPickupId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
-                >
-                  {Object.values(currentLocations).map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name} ({loc.type})</option>
+            {/* Titik Mula / Kedai (typing box) */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1 text-amber-500">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>Titik Mula / Kedai</span>
+              </label>
+              <input
+                type="text"
+                value={pickupText}
+                onChange={(e) => {
+                  setPickupText(e.target.value);
+                  const match = Object.values(currentLocations).find(
+                    (l) => l.name.trim().toLowerCase() === e.target.value.trim().toLowerCase()
+                  );
+                  if (match) setPickupId(match.id);
+                }}
+                placeholder="cth: Kedai Runcit Pak Ali, Pekan Rengit"
+                list="pickup-shops"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-slate-600"
+              />
+              <datalist id="pickup-shops">
+                {Object.values(currentLocations)
+                  .filter((l) => l.type === "shop")
+                  .map((loc) => (
+                    <option key={loc.id} value={loc.name} />
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1 text-sky-400">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>Destinasi Hantar</span>
-                </label>
-                <select
-                  value={dropoffId}
-                  onChange={(e) => setDropoffId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
-                >
-                  {Object.values(currentLocations).map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name} ({loc.type})</option>
-                  ))}
-                </select>
-              </div>
+              </datalist>
+              <p className="text-[9px] text-slate-500 mt-1">
+                Destinasi hantar automatik guna alamat anda di atas.
+              </p>
             </div>
 
-            {/* Maklumat Hubungi Kedai (Jika Ada) */}
+            {/* Maklumat Hubungi Kedai (Jika Ada) — cari ikut nama yang ditaip */}
             {(() => {
               const selectedPickup = currentLocations[pickupId];
               if (selectedPickup && selectedPickup.phone) {
