@@ -150,7 +150,7 @@ export interface Runner {
   phone: string;
   vehicleType: VehicleType;
   vehicles?: VehicleType[]; // Senarai kenderaan yang dimiliki runner
-  status: "ACTIVE" | "OFFLINE";
+  status: "ACTIVE" | "OFFLINE" | "CUTI";
   stats: RunnerStats;
   password?: string;
 }
