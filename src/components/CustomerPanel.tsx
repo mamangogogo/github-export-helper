@@ -33,92 +33,8 @@ const DEFAULT_BASE_FEES = {
   LORRY: { normal: 45.00, rainy: 50.00 }
 };
 
-// Creative Malaysia-centric job templates reflecting the user's requested services
-const JOB_TEMPLATES = [
-  {
-    title: "Belikan Nasi Lemak Pak Ayob",
-    type: "FOOD" as OrderType,
-    vehicleType: "MOTORCYCLE" as VehicleType,
-    pickupId: "pak_ayob",
-    dropoffId: "flat_sentosa",
-    items: [
-      { id: "1", name: "Nasi Lemak Ayam Goreng Berempah", quantity: 2 },
-      { id: "2", name: "Teh Tarik Ais Bungkus Ikat Tepi", quantity: 2 }
-    ],
-    fee: 6.00,
-    totalCost: 18.00,
-    notes: "Sambal minta bungkus asing ye bro, anak-anak tak makan pedas."
-  },
-  {
-    title: "Angkat Sofa Jati & Meja Makan",
-    type: "HEAVY_LIFTING" as OrderType,
-    vehicleType: "LORRY" as VehicleType,
-    pickupId: "perabot_jati",
-    dropoffId: "taman_indah",
-    items: [
-      { id: "1", name: "Sofa Jati 3-Seater (Berat)", quantity: 1 },
-      { id: "2", name: "Meja Makan Kayu Solid", quantity: 1 }
-    ],
-    fee: 45.00,
-    totalCost: 0,
-    notes: "Perlu 2 orang runner sebab barang agak berat. Ada lif di kondo, tapi di flat tiada lif."
-  },
-  {
-    title: "Potong Rumput & Bersih Halaman Rumah",
-    type: "CLEANING" as OrderType,
-    vehicleType: "MOTORCYCLE" as VehicleType,
-    pickupId: "taman_indah", // Start and end are similar for onsite services
-    dropoffId: "taman_indah",
-    items: [
-      { id: "1", name: "Potong Rumput Halaman Depan", quantity: 1 },
-      { id: "2", name: "Kemas Dedaun Kering & Buang", quantity: 1 }
-    ],
-    fee: 20.00,
-    totalCost: 0,
-    notes: "Tolong bawa mesin rumput sendiri ye bos. Lepas potong tolong sumbat dalam plastik sampah hitam."
-  },
-  {
-    title: "Tolong Beratur Cop Lesen Dekat JPJ",
-    type: "QUEUING" as OrderType,
-    vehicleType: "MOTORCYCLE" as VehicleType,
-    pickupId: "jpj_sentosa",
-    dropoffId: "pejabat_urusan",
-    items: [
-      { id: "1", name: "Nombor Giliran & Cop Borang JPJ L1", quantity: 1 }
-    ],
-    fee: 15.00,
-    totalCost: 5.00,
-    notes: "Saya kena renew lesen tapi kerja tak sempat. Tolong beratur awal pagi pukul 8, nanti saya sampai saya takeover."
-  },
-  {
-    title: "Beli Runcit Mingguan di Pasar Raya",
-    type: "GROCERY" as OrderType,
-    vehicleType: "CAR" as VehicleType,
-    pickupId: "pasar_raya_mesra",
-    dropoffId: "kondo_harmoni",
-    items: [
-      { id: "1", name: "Beras Wangi Jati 5kg", quantity: 1 },
-      { id: "2", name: "Minyak Masak Alif 2kg", quantity: 1 },
-      { id: "3", name: "Telur Ayam Gred A (Sarang 30biji)", quantity: 1 }
-    ],
-    fee: 12.00,
-    totalCost: 52.00,
-    notes: "Sila beli gred A sahaja dan pastikan telur tiada yang pecah."
-  },
-  {
-    title: "Hantar Dokumen Penting / Surat Sumpah",
-    type: "PARCEL" as OrderType,
-    vehicleType: "MOTORCYCLE" as VehicleType,
-    pickupId: "pejabat_urusan",
-    dropoffId: "kondo_harmoni",
-    items: [
-      { id: "1", name: "Sampul Surat Besar Kalis Air", quantity: 1 }
-    ],
-    fee: 8.00,
-    totalCost: 0,
-    notes: "Dokumen confidential, sila pastikan tidak basah jika hujan."
-  }
-];
+// Job templates dibuang — pelanggan kini pilih kedai berdaftar oleh admin
+
 
 export default function CustomerPanel({ 
   orders, 
@@ -241,37 +157,12 @@ export default function CustomerPanel({
     setNotes("");
   };
 
-  const handleSelectTemplate = (tpl: typeof JOB_TEMPLATES[0]) => {
-    if (!customerPhone.trim()) {
-      alert("Sila masukkan Nombor WhatsApp anda terlebih dahulu di bahagian 'Maklumat Pelanggan'!");
-      return;
-    }
-
-    if (!customerAddress.trim()) {
-      alert("Sila masukkan Alamat anda terlebih dahulu di bahagian 'Maklumat Pelanggan'!");
-      return;
-    }
-
-    const availableLocs = Object.values(currentLocations);
-    if (availableLocs.length === 0) return;
-
-    const finalFee = Math.max(tpl.fee, getDynamicDefaultFee(tpl.vehicleType), minFee);
-
-    onCreateOrder({
-      title: tpl.title,
-      type: tpl.type,
-      vehicleType: tpl.vehicleType,
-      pickupLocation: currentLocations[tpl.pickupId] || availableLocs[0],
-      dropoffLocation: currentLocations[tpl.dropoffId] || availableLocs[1] || availableLocs[0],
-      items: tpl.items,
-      fee: finalFee,
-      totalCost: tpl.totalCost,
-      notes: tpl.notes,
-      customerName: customerName.trim() || "Kak Kiah Sentosa",
-      customerPhone: customerPhone.trim(),
-      customerAddress: customerAddress.trim()
-    });
+  const handleSelectShop = (shop: Location) => {
+    // Pilih kedai berdaftar → tukar ke tab custom & set pickup
+    setPickupId(shop.id);
+    setActiveTab("custom");
   };
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -413,7 +304,7 @@ export default function CustomerPanel({
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>Servis Mudah (Preset)</span>
+          <span>Kedai Berdaftar</span>
         </button>
         <button
           onClick={() => setActiveTab("custom")}
@@ -433,42 +324,57 @@ export default function CustomerPanel({
         {activeTab === "template" ? (
           <div className="flex flex-col gap-4">
             <div className="text-slate-400 text-xs leading-relaxed">
-              Ketik sahaja salah satu servis di bawah untuk terus memanggil runner di kawasan anda:
+              Pilih kedai berdaftar di bawah untuk terus mengisi butiran tempahan. Senarai kedai diurus oleh Admin.
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {JOB_TEMPLATES.map((tpl, idx) => (
-                <div 
-                  key={idx}
-                  className="bg-slate-950/60 hover:bg-slate-950 border border-slate-800/80 hover:border-slate-700 rounded-2xl p-4 transition-all flex flex-col justify-between group cursor-pointer"
-                  onClick={() => handleSelectTemplate(tpl)}
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="p-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center">
-                        {getOrderIcon(tpl.type)}
-                      </span>
-                      <span className="bg-slate-900 text-emerald-400 text-xs font-bold px-2 py-1 rounded-md border border-slate-800/80 flex items-center gap-1">
-                        <Coins className="w-3 h-3" />
-                        Upah: RM {tpl.fee.toFixed(2)}
-                      </span>
+            {(() => {
+              const shops = Object.values(currentLocations).filter((l) => l.type === "shop");
+              if (shops.length === 0) {
+                return (
+                  <div className="bg-slate-950/60 border border-dashed border-slate-800 rounded-2xl p-6 text-center">
+                    <MapPin className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                    <p className="text-xs text-slate-400 font-semibold">Belum ada kedai berdaftar.</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Admin perlu daftar kedai dahulu di Panel Admin.</p>
+                  </div>
+                );
+              }
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {shops.map((shop) => (
+                    <div
+                      key={shop.id}
+                      className="bg-slate-950/60 hover:bg-slate-950 border border-slate-800/80 hover:border-amber-500/50 rounded-2xl p-4 transition-all flex flex-col justify-between group cursor-pointer"
+                      onClick={() => handleSelectShop(shop)}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <span className="p-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center">
+                            <ShoppingBag className="w-5 h-5 text-amber-400" />
+                          </span>
+                          {shop.phone && (
+                            <span className="bg-slate-900 text-slate-300 text-[10px] font-bold px-2 py-1 rounded-md border border-slate-800/80 flex items-center gap-1 font-mono">
+                              <Phone className="w-3 h-3" />
+                              {shop.phone}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-xs font-black text-white group-hover:text-amber-400 transition-colors line-clamp-1">{shop.name}</h4>
+                        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                          {shop.address}
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-900/50 flex items-center justify-between">
+                        <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Kedai Berdaftar</span>
+                        <span className="text-[11px] font-bold text-slate-300 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                          Tempah →
+                        </span>
+                      </div>
                     </div>
-                    <h4 className="text-xs font-black text-white group-hover:text-amber-400 transition-colors line-clamp-1">{tpl.title}</h4>
-                    <p className="text-[10px] text-slate-400 mt-1 font-mono leading-relaxed line-clamp-2">
-                      Tugas: {tpl.items.map(i => `${i.quantity}x ${i.name}`).join(", ")}
-                    </p>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-slate-900/50 flex items-center justify-between">
-                    <span className="text-[9px] text-slate-500">
-                      Lokasi: {currentLocations[tpl.pickupId]?.name}
-                    </span>
-                    <span className="text-[11px] font-bold text-slate-300 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                      Pesan Sekarang →
-                    </span>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
+
         ) : (
           <form onSubmit={handleSubmitCustomOrder} className="flex flex-col gap-4">
             {/* Title */}
