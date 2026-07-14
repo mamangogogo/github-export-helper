@@ -585,43 +585,24 @@ export default function CustomerPanel({
               </div>
             </div>
 
-            {/* Notes & Costs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nota Khas / Pesanan Tambahan</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Contoh: Tolong bawa tali ikat perabot sendiri ye bro."
-                  rows={2}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none placeholder-slate-700"
-                />
-              </div>
-              <div className="bg-slate-950 border border-slate-800 p-3 rounded-2xl flex flex-col justify-center">
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
-                  <span>Anggaran Kos Belanja:</span>
-                  <input
-                    type="number"
-                    value={estimatedCost}
-                    onChange={(e) => setEstimatedCost(parseFloat(e.target.value) || 0)}
-                    className="w-16 bg-slate-900 border border-slate-800 rounded text-center text-white px-1.5 py-0.5 text-xs"
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
-                  <span>Upah Runner Bersih:</span>
-                  <span className="text-emerald-400 font-mono">RM {fee.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-xs font-bold text-white border-t border-slate-800 pt-1.5 mt-1.5">
-                  <span>Jumlah Kasar:</span>
-                  <span className="text-indigo-400">RM {(estimatedCost + fee).toFixed(2)}</span>
-                </div>
-              </div>
+            {/* Notes */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nota Khas / Pesanan Tambahan</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Contoh: Tolong bawa tali ikat perabot sendiri ye bro."
+                rows={2}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none placeholder-slate-700"
+              />
+              <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed">
+                💬 Harga barang akan dimaklumkan oleh runner melalui WhatsApp selepas semakan di kedai.
+              </p>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={items.length === 0}
               className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition-colors shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 mt-1 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -630,6 +611,7 @@ export default function CustomerPanel({
           </form>
         )}
       </div>
+
 
       {/* Track Active Orders */}
       <div className="flex flex-col gap-3">
