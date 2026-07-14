@@ -23,6 +23,7 @@ export interface Location {
   y: number; // Percent height of map (0 - 100)
   address: string;
   phone?: string; // Nombor telefon kedai untuk dihubungi
+  logoUrl?: string; // Logo kedai (data URL / URL) - pilihan
 }
 
 export interface OrderItem {
