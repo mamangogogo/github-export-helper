@@ -76,23 +76,6 @@ export default function AdminPanel({
   baseFees,
   onChangeBaseFees,
 }: AdminPanelProps) {
-  // Admin authentication state
-  const [isAdminAuthed, setIsAdminAuthed] = useState<boolean>(false);
-  const [adminUsername, setAdminUsername] = useState<string>("");
-  const [adminPassword, setAdminPassword] = useState<string>("");
-  const [loginError, setLoginError] = useState<string>("");
-
-  const handleAdminLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError("");
-    if (adminUsername.trim() === "adminrr" && adminPassword === "930404") {
-      setIsAdminAuthed(true);
-      setAdminUsername("");
-      setAdminPassword("");
-    } else {
-      setLoginError("Sila masukkan kombinasi nama pengguna & kata laluan yang sah!");
-    }
-  };
 
   const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
   const [editFeeValue, setEditFeeValue] = useState<string>("");
