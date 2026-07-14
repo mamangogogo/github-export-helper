@@ -234,7 +234,7 @@ export default function App() {
 
     // System event in chat
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    appendChatMessage(orderId, "system", `Runner ${activeRunner.name} bersetuju untuk menguruskan tugasan anda!`, timeStr);
+    appendChatMessage(orderId, "system", `Runner ${activeRunner?.name || "Runner"} bersetuju untuk menguruskan tugasan anda!`, timeStr);
     
     // Delay greeting from customer to simulate natural interaction
     setTimeout(() => {
