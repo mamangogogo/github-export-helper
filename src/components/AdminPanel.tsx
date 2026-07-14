@@ -71,6 +71,9 @@ export default function AdminPanel({
   onRegisterRunner,
   onDeleteRunner,
   onUpdateRunnerVehicles,
+  onUpdateRunnerStatus,
+  onMarkRunnerPaid,
+
   minFee,
   onChangeMinFee,
   commissionRate,
