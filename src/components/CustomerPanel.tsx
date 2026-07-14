@@ -157,37 +157,12 @@ export default function CustomerPanel({
     setNotes("");
   };
 
-  const handleSelectTemplate = (tpl: typeof JOB_TEMPLATES[0]) => {
-    if (!customerPhone.trim()) {
-      alert("Sila masukkan Nombor WhatsApp anda terlebih dahulu di bahagian 'Maklumat Pelanggan'!");
-      return;
-    }
-
-    if (!customerAddress.trim()) {
-      alert("Sila masukkan Alamat anda terlebih dahulu di bahagian 'Maklumat Pelanggan'!");
-      return;
-    }
-
-    const availableLocs = Object.values(currentLocations);
-    if (availableLocs.length === 0) return;
-
-    const finalFee = Math.max(tpl.fee, getDynamicDefaultFee(tpl.vehicleType), minFee);
-
-    onCreateOrder({
-      title: tpl.title,
-      type: tpl.type,
-      vehicleType: tpl.vehicleType,
-      pickupLocation: currentLocations[tpl.pickupId] || availableLocs[0],
-      dropoffLocation: currentLocations[tpl.dropoffId] || availableLocs[1] || availableLocs[0],
-      items: tpl.items,
-      fee: finalFee,
-      totalCost: tpl.totalCost,
-      notes: tpl.notes,
-      customerName: customerName.trim() || "Kak Kiah Sentosa",
-      customerPhone: customerPhone.trim(),
-      customerAddress: customerAddress.trim()
-    });
+  const handleSelectShop = (shop: Location) => {
+    // Pilih kedai berdaftar → tukar ke tab custom & set pickup
+    setPickupId(shop.id);
+    setActiveTab("custom");
   };
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {
