@@ -146,7 +146,7 @@ export default function CustomerPanel({
       items: items,
       fee: fee,
       totalCost: estimatedCost,
-      notes: notes,
+      notes: typeText.trim() ? `Jenis: ${typeText.trim()}${notes.trim() ? `\n${notes.trim()}` : ""}` : notes,
       customerName: customerName.trim() || "Kak Kiah Sentosa",
       customerPhone: customerPhone.trim(),
       customerAddress: customerAddress.trim()
