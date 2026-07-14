@@ -4,15 +4,19 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Order, OrderStatus, OrderType, VehicleType, Location, ChatMessage, RunnerStats, MAP_LOCATIONS, Runner } from "./types";
 import LiveDashboard from "./components/LiveDashboard";
 import CustomerPanel from "./components/CustomerPanel";
 import RunnerPanel from "./components/RunnerPanel";
 import AdminPanel from "./components/AdminPanel";
 import ChatBox from "./components/ChatBox";
-import { 
-  Bike, User, ShoppingBag, Plus, Sparkles, Navigation, CheckCircle2, 
-  MessageSquare, DollarSign, TrendingUp, Compass, HeartPulse, Info, HelpCircle, Shield
+import { useSession } from "./hooks/useSession";
+import { useShops } from "./hooks/useShops";
+import { useRunners as useRunnersDB } from "./hooks/useRunners";
+import {
+  Bike, User, ShoppingBag, Plus, Sparkles, Navigation, CheckCircle2,
+  MessageSquare, DollarSign, TrendingUp, Compass, HeartPulse, Info, HelpCircle, Shield, LogIn, LogOut
 } from "lucide-react";
 
 export default function App() {
