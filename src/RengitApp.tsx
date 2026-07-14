@@ -659,8 +659,12 @@ export default function App() {
             </button>
             <button
               onClick={() => {
+                if (!session) {
+                  setAuthModalOpen(true);
+                  return;
+                }
                 if (role !== "admin") {
-                  navigate({ to: "/auth" });
+                  alert("Akaun anda tiada akses admin. Sila log masuk dengan akaun admin.");
                   return;
                 }
                 setActiveMode("admin");
@@ -674,35 +678,25 @@ export default function App() {
             >
               <Shield className="w-4 h-4" />
               <span>Mod Admin</span>
-              {role !== "admin" && <Info className="w-3 h-3 opacity-60" />}
+              {!session && <LogIn className="w-3 h-3 opacity-60" />}
             </button>
           </div>
 
-          {/* Auth chip */}
-          <div className="flex items-center gap-2 self-start md:self-auto">
-            {session ? (
-              <>
-                <span className="text-[10px] text-slate-400 font-mono bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
-                  {role === "admin" ? "👑 Admin" : role === "runner" ? "🏍️ Runner" : "👤 Pengguna"}
-                </span>
-                <button
-                  onClick={() => signOut()}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/40 transition-all"
-                >
-                  <LogOut className="w-3 h-3" />
-                  <span>Keluar</span>
-                </button>
-              </>
-            ) : (
+          {/* Auth chip — hanya papar bila sudah log masuk */}
+          {session && (
+            <div className="flex items-center gap-2 self-start md:self-auto">
+              <span className="text-[10px] text-slate-400 font-mono bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
+                {role === "admin" ? "👑 Admin" : role === "runner" ? "🏍️ Runner" : "👤 Pengguna"}
+              </span>
               <button
-                onClick={() => navigate({ to: "/auth" })}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-amber-500/10 border border-amber-500/40 text-amber-400 hover:bg-amber-500/20 transition-all"
+                onClick={() => signOut()}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/40 transition-all"
               >
-                <LogIn className="w-3 h-3" />
-                <span>Log Masuk</span>
+                <LogOut className="w-3 h-3" />
+                <span>Keluar</span>
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
       </header>
