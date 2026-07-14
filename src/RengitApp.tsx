@@ -874,6 +874,11 @@ export default function App() {
       <footer className="mt-auto py-6 border-t border-slate-900 bg-slate-950 text-center text-xs text-slate-500 font-mono">
         <p>© 2026 Rengit Runner Inc. Dioptimumkan untuk kelajuan melampau dan kemudahan runner setempat.</p>
       </footer>
+
+      <AuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
     </div>
   );
 }
