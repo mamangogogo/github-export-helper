@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 export default function App() {
+  const FINANCIAL_SETTINGS_KEY = "rengit-runner-financial-settings";
   const navigate = useNavigate();
   const { session, role, loading: authLoading, signOut } = useSession();
 
@@ -78,6 +79,32 @@ export default function App() {
     PICKUP: { normal: 25.00, rainy: 28.00 },
     LORRY: { normal: 45.00, rainy: 50.00 }
   });
+
+  useEffect(() => {
+    const savedSettings = window.localStorage.getItem(FINANCIAL_SETTINGS_KEY);
+    if (!savedSettings) return;
+
+    try {
+      const parsed = JSON.parse(savedSettings) as {
+        minFee?: number;
+        commissionRate?: number;
+        baseFees?: typeof baseFees;
+      };
+
+      if (typeof parsed.minFee === "number") setMinFee(parsed.minFee);
+      if (typeof parsed.commissionRate === "number") setCommissionRate(parsed.commissionRate);
+      if (parsed.baseFees) setBaseFees(parsed.baseFees);
+    } catch {
+      window.localStorage.removeItem(FINANCIAL_SETTINGS_KEY);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      FINANCIAL_SETTINGS_KEY,
+      JSON.stringify({ minFee, commissionRate, baseFees })
+    );
+  }, [baseFees, commissionRate, minFee]);
 
   // Derive active runner and runnerStats dynamically (fallback jika tiada runner didaftar lagi)
   const FALLBACK_STATS: RunnerStats = {

@@ -437,7 +437,7 @@ export default function AdminPanel({
               <div>
                 <span className="text-[10px] uppercase font-bold text-indigo-400 font-mono flex items-center gap-1.5 mb-2">
                   <Truck className="w-3.5 h-3.5 text-indigo-400" />
-                  Syor Upah Ramalan Kenderaan (Normal vs Hujan)
+                  Dari Upah Ramalan Kenderaan (Normal vs Hujan)
                 </span>
 
                 <div className="space-y-2.5">
@@ -502,7 +502,7 @@ export default function AdminPanel({
           </div>
 
           <div className="text-[11px] text-slate-400 leading-relaxed bg-slate-950/40 p-3 rounded-xl border border-slate-850 mt-1">
-            <span className="font-bold text-white">Kesan Simulasi:</span> Apabila hujan lebat diaktifkan, system Rengit Runner akan secara dinamik menaikkan syor upah tip permulaan di borang tempahan pelanggan untuk menjaga keselamatan kebajikan runner bermotor.
+            <span className="font-bold text-white">Kesan Simulasi:</span> Apabila hujan lebat diaktifkan, system Rengit Runner akan secara dinamik menaikkan kadar dari upah tip permulaan di borang tempahan pelanggan untuk menjaga keselamatan kebajikan runner bermotor.
           </div>
         </div>
 

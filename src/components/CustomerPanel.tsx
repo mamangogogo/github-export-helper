@@ -428,7 +428,7 @@ export default function CustomerPanel({
               <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center justify-between">
                 <span>Pilih Kenderaan Runner</span>
                 {weather === "rainy" && (
-                  <span className="text-[9px] text-amber-400 font-bold animate-pulse">⚡ Hujan Lebat: Syor upah diselaraskan (+RM3-RM5)</span>
+                  <span className="text-[9px] text-amber-400 font-bold animate-pulse">⚡ Hujan Lebat: Dari upah diselaraskan (+RM3-RM5)</span>
                 )}
                 {weather === "sunny" && (
                   <span className="text-[9px] text-indigo-400 font-normal">Sila pilih kenderaan yang sepadan dengan saiz barang</span>
@@ -462,7 +462,7 @@ export default function CustomerPanel({
                       <Icon className={`w-6 h-6 mb-1.5 ${isSelected ? 'animate-bounce' : ''}`} />
                       <span className="text-[11px] font-black">{veh.label}</span>
                       <span className="text-[8px] text-slate-500 mt-0.5 leading-tight">{veh.desc}</span>
-                      <span className="text-[9px] font-bold text-emerald-400 font-mono mt-1">Syor: RM {recommendedFee}</span>
+                      <span className="text-[9px] font-bold text-emerald-400 font-mono mt-1">Dari: RM {recommendedFee}</span>
                     </button>
                   );
                 })}
