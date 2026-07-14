@@ -152,6 +152,7 @@ export default function AdminPanel({
       y: randomY,
       address: shopAddress.trim(),
       phone: shopPhone.trim() || undefined,
+      logoUrl: shopLogoUrl || undefined,
     };
 
     onRegisterLocation(newLoc);
@@ -161,6 +162,7 @@ export default function AdminPanel({
     setShopAddress("");
     setShopPhone("");
     setShopType("shop");
+    setShopLogoUrl("");
   };
 
   const handleRegisterRunner = (e: React.FormEvent) => {
