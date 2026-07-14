@@ -107,6 +107,23 @@ export default function AdminPanel({
   const [shopAddress, setShopAddress] = useState("");
   const [shopPhone, setShopPhone] = useState("");
   const [shopType, setShopType] = useState<"shop" | "residential" | "office">("shop");
+  const [shopLogoUrl, setShopLogoUrl] = useState<string>("");
+
+  const handleShopLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Sila pilih fail imej sahaja (PNG / JPG).");
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      alert("Saiz logo terlalu besar. Sila pilih imej di bawah 500KB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setShopLogoUrl(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
 
   // Runner state form
   const [runnerName, setRunnerName] = useState("");
