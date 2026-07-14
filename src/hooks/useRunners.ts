@@ -98,5 +98,22 @@ export function useRunners() {
     await refresh();
   };
 
-  return { runners, loading, addRunner, deleteRunner, updateRunnerVehicles, refresh };
+  const updateRunnerStatus = async (id: string, status: "ACTIVE" | "OFFLINE" | "CUTI") => {
+    const { error } = await supabase
+      .from("runners")
+      .update({ status })
+      .eq("id", id);
+    if (error) throw error;
+    await refresh();
+  };
+
+  const resetRunnerEarnings = async (id: string, scope: "today" | "total") => {
+    const patch = scope === "today" ? { today_earnings: 0 } : { today_earnings: 0, total_earnings: 0 };
+    const { error } = await supabase.from("runners").update(patch).eq("id", id);
+    if (error) throw error;
+    await refresh();
+  };
+
+  return { runners, loading, addRunner, deleteRunner, updateRunnerVehicles, updateRunnerStatus, resetRunnerEarnings, refresh };
+
 }
