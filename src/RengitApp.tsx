@@ -4,56 +4,62 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Order, OrderStatus, OrderType, VehicleType, Location, ChatMessage, RunnerStats, MAP_LOCATIONS, Runner } from "./types";
 import LiveDashboard from "./components/LiveDashboard";
 import CustomerPanel from "./components/CustomerPanel";
 import RunnerPanel from "./components/RunnerPanel";
 import AdminPanel from "./components/AdminPanel";
 import ChatBox from "./components/ChatBox";
-import { 
-  Bike, User, ShoppingBag, Plus, Sparkles, Navigation, CheckCircle2, 
-  MessageSquare, DollarSign, TrendingUp, Compass, HeartPulse, Info, HelpCircle, Shield
+import { useSession } from "./hooks/useSession";
+import { useShops } from "./hooks/useShops";
+import { useRunners as useRunnersDB } from "./hooks/useRunners";
+import {
+  Bike, User, ShoppingBag, Plus, Sparkles, Navigation, CheckCircle2,
+  MessageSquare, DollarSign, TrendingUp, Compass, HeartPulse, Info, HelpCircle, Shield, LogIn, LogOut
 } from "lucide-react";
 
 export default function App() {
+  const navigate = useNavigate();
+  const { session, role, loading: authLoading, signOut } = useSession();
+
   const [activeMode, setActiveMode] = useState<"customer" | "runner" | "admin">("customer");
   const [weather, setWeather] = useState<"sunny" | "rainy">("sunny");
   const [demandLevel, setDemandLevel] = useState<"normal" | "high" | "peak">("high");
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedMapLocation, setSelectedMapLocation] = useState<Location | null>(null);
-  
-  // Dynamic Locations list state
-  const [locations, setLocations] = useState<{ [key: string]: Location }>(MAP_LOCATIONS);
+
+  // DB-backed shops (merged with the built-in map locations for demo)
+  const { shops: dbShops, addShop, deleteShop } = useShops();
+  const locations: { [key: string]: Location } = { ...MAP_LOCATIONS, ...dbShops };
 
   // Chat state
   const [chattingOrderId, setChattingOrderId] = useState<string | null>(null);
   const [chats, setChats] = useState<{ [orderId: string]: ChatMessage[] }>({});
   const [isCustomerTyping, setIsCustomerTyping] = useState(false);
 
-  // Multiple Runners State
-  const [runners, setRunners] = useState<Runner[]>([
-    {
-      id: "runner_1",
-      name: "Ahmad Safwan (AS)",
-      phone: "013-4567890",
-      vehicleType: "MOTORCYCLE",
-      vehicles: ["MOTORCYCLE", "CAR"],
-      status: "ACTIVE",
-      password: "123456",
-      stats: {
-        completedDeliveries: 3,
-        totalEarnings: 42.00,
-        activeStreak: 2,
-        rating: 4.9,
-        todayEarnings: 15.00,
-        level: 3,
-        fuelSaved: 1.4
-      }
-    }
-  ]);
+  // DB-backed runners with local stat overlay (stats increment locally until orders persist)
+  const { runners: dbRunners, addRunner, deleteRunner, updateRunnerVehicles } = useRunnersDB();
+  const [runnerStatOverlay, setRunnerStatOverlay] = useState<{ [id: string]: Partial<RunnerStats> }>({});
+  const runners: Runner[] = dbRunners.length > 0
+    ? dbRunners.map(r => ({ ...r, stats: { ...r.stats, ...(runnerStatOverlay[r.id] || {}) } }))
+    : [];
+  const setRunners = (_: any) => { /* handled via DB hook; overlay used for stats */ };
 
-  const [selectedRunnerId, setSelectedRunnerId] = useState<string>("runner_1");
+  const [selectedRunnerId, setSelectedRunnerId] = useState<string>("");
   const [loggedInRunnerId, setLoggedInRunnerId] = useState<string | null>(null);
+
+  // Default-select first runner once loaded
+  useEffect(() => {
+    if (!selectedRunnerId && runners.length > 0) {
+      setSelectedRunnerId(runners[0].id);
+    }
+  }, [runners, selectedRunnerId]);
+
+  // Auto-keluar dari mod admin/runner jika tiada session atau peranan tidak layak
+  useEffect(() => {
+    if (activeMode === "admin" && role !== "admin") setActiveMode("customer");
+  }, [activeMode, role]);
 
   // Financial configurations
   const [minFee, setMinFee] = useState<number>(5.00);
@@ -71,9 +77,13 @@ export default function App() {
     LORRY: { normal: 45.00, rainy: 50.00 }
   });
 
-  // Derive active runner and runnerStats dynamically
-  const activeRunner = runners.find(r => r.id === selectedRunnerId) || runners[0];
-  const runnerStats = activeRunner.stats;
+  // Derive active runner and runnerStats dynamically (fallback jika tiada runner didaftar lagi)
+  const FALLBACK_STATS: RunnerStats = {
+    completedDeliveries: 0, totalEarnings: 0, activeStreak: 0, rating: 5.0,
+    todayEarnings: 0, level: 1, fuelSaved: 0,
+  };
+  const activeRunner = runners.find(r => r.id === selectedRunnerId) || runners[0] || null;
+  const runnerStats = activeRunner?.stats || FALLBACK_STATS;
 
   // Active accepted order for the current runner
   const activeOrder = orders.find(o => o.runnerId === selectedRunnerId && o.status !== "COMPLETED") || null;
@@ -229,7 +239,7 @@ export default function App() {
 
     // System event in chat
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    appendChatMessage(orderId, "system", `Runner ${activeRunner.name} bersetuju untuk menguruskan tugasan anda!`, timeStr);
+    appendChatMessage(orderId, "system", `Runner ${activeRunner?.name || "Runner"} bersetuju untuk menguruskan tugasan anda!`, timeStr);
     
     // Delay greeting from customer to simulate natural interaction
     setTimeout(() => {
@@ -292,24 +302,23 @@ export default function App() {
 
         setAdminRevenue(prev => parseFloat((prev + commission).toFixed(2)));
 
-        setRunners(prevRunners => prevRunners.map(r => {
-          if (r.id === (targetOrder.runnerId || selectedRunnerId)) {
-            const prev = r.stats;
-            return {
-              ...r,
-              stats: {
-                ...prev,
-                completedDeliveries: prev.completedDeliveries + 1,
-                totalEarnings: parseFloat((prev.totalEarnings + runnerNet).toFixed(2)),
-                todayEarnings: parseFloat((prev.todayEarnings + runnerNet).toFixed(2)),
-                activeStreak: prev.activeStreak + 1,
-                level: Math.floor((prev.completedDeliveries + 1) / 3) + 1,
-                fuelSaved: parseFloat((prev.fuelSaved + 0.35).toFixed(2))
-              }
-            };
-          }
-          return r;
-        }));
+        // Update stat overlay for the completing runner
+        const targetRunnerId = targetOrder.runnerId || selectedRunnerId;
+        const currentRunner = runners.find(r => r.id === targetRunnerId);
+        if (currentRunner) {
+          const prev = currentRunner.stats;
+          setRunnerStatOverlay(o => ({
+            ...o,
+            [targetRunnerId]: {
+              completedDeliveries: prev.completedDeliveries + 1,
+              totalEarnings: parseFloat((prev.totalEarnings + runnerNet).toFixed(2)),
+              todayEarnings: parseFloat((prev.todayEarnings + runnerNet).toFixed(2)),
+              activeStreak: prev.activeStreak + 1,
+              level: Math.floor((prev.completedDeliveries + 1) / 3) + 1,
+              fuelSaved: parseFloat((prev.fuelSaved + 0.35).toFixed(2)),
+            },
+          }));
+        }
         addSystemNotification(`Job Selesai! RM ${runnerNet.toFixed(2)} dikreditkan ke dompet Runner (Komisen Admin RM ${commission.toFixed(2)} ditolak).`);
       }
     }
@@ -380,29 +389,9 @@ export default function App() {
   };
 
   const handleResetPlatformData = () => {
-    // Reset locations
-    setLocations(MAP_LOCATIONS);
-    
-    // Reset runners list
-    setRunners([
-      {
-        id: "runner_1",
-        name: "Ahmad Safwan (AS)",
-        phone: "013-4567890",
-        vehicleType: "MOTORCYCLE",
-        status: "ACTIVE",
-        stats: {
-          completedDeliveries: 3,
-          totalEarnings: 42.00,
-          activeStreak: 2,
-          rating: 4.9,
-          todayEarnings: 15.00,
-          level: 3,
-          fuelSaved: 1.4
-        }
-      }
-    ]);
-    setSelectedRunnerId("runner_1");
+    // Reset local overlays (DB kedai/runner tak diusik)
+    setRunnerStatOverlay({});
+    if (runners.length > 0) setSelectedRunnerId(runners[0].id);
 
     const initialOrders: Order[] = [
       {
@@ -518,60 +507,78 @@ export default function App() {
     addSystemNotification(`Pengumuman Berjaya Disiarkan ke ${orders.length} sembang!`);
   };
 
-  // Registration and deletion handlers for Locations
-  const handleRegisterLocation = (newLoc: Location) => {
-    setLocations(prev => ({
-      ...prev,
-      [newLoc.id]: newLoc
-    }));
-    addSystemNotification(`Kedai "${newLoc.name}" berjaya didaftarkan!`);
+  // Registration and deletion handlers for Locations (kedai) — kini melalui DB
+  const handleRegisterLocation = async (newLoc: Location) => {
+    try {
+      await addShop({
+        name: newLoc.name,
+        address: newLoc.address,
+        phone: newLoc.phone,
+        logoUrl: newLoc.logoUrl,
+        x: newLoc.x,
+        y: newLoc.y,
+      } as any);
+      addSystemNotification(`Kedai "${newLoc.name}" berjaya didaftarkan!`);
+    } catch (err: any) {
+      alert(`Gagal daftar kedai: ${err?.message || "ralat"}`);
+    }
   };
 
-  const handleDeleteLocation = (id: string) => {
-    setLocations(prev => {
-      const updated = { ...prev };
-      delete updated[id];
-      return updated;
-    });
-    addSystemNotification("Kedai berjaya dibuang.");
-  };
-
-  // Registration and deletion handlers for Runners
-  const handleRegisterRunner = (newRunner: Runner) => {
-    setRunners(prev => [...prev, newRunner]);
-    addSystemNotification(`Runner "${newRunner.name}" berjaya didaftarkan!`);
-  };
-
-  const handleDeleteRunner = (id: string) => {
-    if (id === "runner_1") {
-      alert("Anda tidak boleh memadam runner utama!");
+  const handleDeleteLocation = async (id: string) => {
+    // Jangan buang lokasi built-in (bukan UUID DB)
+    if (MAP_LOCATIONS[id]) {
+      alert("Lokasi ini adalah lokasi contoh dan tidak boleh dibuang.");
       return;
     }
-    setRunners(prev => prev.filter(r => r.id !== id));
-    if (selectedRunnerId === id) {
-      setSelectedRunnerId("runner_1");
+    try {
+      await deleteShop(id);
+      addSystemNotification("Kedai berjaya dibuang.");
+    } catch (err: any) {
+      alert(`Gagal buang kedai: ${err?.message || "ralat"}`);
     }
-    addSystemNotification("Runner berjaya dipadam.");
   };
 
-  const handleUpdateRunnerVehicles = (runnerId: string, vehicles: VehicleType[]) => {
-    setRunners(prev => prev.map(r => {
-      if (r.id === runnerId) {
-        const updatedVehicles = vehicles.length > 0 ? vehicles : [r.vehicleType];
-        const updatedVehicleType = updatedVehicles.includes(r.vehicleType) ? r.vehicleType : updatedVehicles[0];
-        return {
-          ...r,
-          vehicles: updatedVehicles,
-          vehicleType: updatedVehicleType
-        };
+  // Registration and deletion handlers for Runners — kini melalui DB
+  const handleRegisterRunner = async (newRunner: Runner) => {
+    try {
+      await addRunner({
+        name: newRunner.name,
+        phone: newRunner.phone,
+        vehicleType: newRunner.vehicleType,
+        vehicles: newRunner.vehicles || [newRunner.vehicleType],
+        status: newRunner.status || "ACTIVE",
+      });
+      addSystemNotification(`Runner "${newRunner.name}" berjaya didaftarkan!`);
+    } catch (err: any) {
+      alert(`Gagal daftar runner: ${err?.message || "ralat"}`);
+    }
+  };
+
+  const handleDeleteRunner = async (id: string) => {
+    try {
+      await deleteRunner(id);
+      if (selectedRunnerId === id && runners.length > 1) {
+        const next = runners.find(r => r.id !== id);
+        if (next) setSelectedRunnerId(next.id);
       }
-      return r;
-    }));
-    addSystemNotification("Senarai kenderaan dimiliki dikemaskini.");
+      addSystemNotification("Runner berjaya dipadam.");
+    } catch (err: any) {
+      alert(`Gagal padam runner: ${err?.message || "ralat"}`);
+    }
+  };
+
+  const handleUpdateRunnerVehicles = async (runnerId: string, vehicles: VehicleType[]) => {
+    try {
+      const final = vehicles.length > 0 ? vehicles : ["MOTORCYCLE" as VehicleType];
+      await updateRunnerVehicles(runnerId, final);
+      addSystemNotification("Senarai kenderaan dimiliki dikemaskini.");
+    } catch (err: any) {
+      alert(`Gagal kemaskini: ${err?.message || "ralat"}`);
+    }
   };
 
   const handleUpdateRunnerVehicle = (runnerId: string, vehicleType: VehicleType) => {
-    setRunners(prev => prev.map(r => r.id === runnerId ? { ...r, vehicleType } : r));
+    // Kenderaan aktif hanya UI-level (tidak persist)
     const vehMalay = vehicleType === "MOTORCYCLE" ? "Motosikal" : vehicleType === "CAR" ? "Kereta" : vehicleType === "PICKUP" ? "Pikap" : "Lori";
     addSystemNotification(`Kenderaan aktif ditukar kepada ${vehMalay}.`);
   };
@@ -650,6 +657,10 @@ export default function App() {
             </button>
             <button
               onClick={() => {
+                if (role !== "admin") {
+                  navigate({ to: "/auth" });
+                  return;
+                }
                 setActiveMode("admin");
                 setChattingOrderId(null);
               }}
@@ -661,7 +672,34 @@ export default function App() {
             >
               <Shield className="w-4 h-4" />
               <span>Mod Admin</span>
+              {role !== "admin" && <Info className="w-3 h-3 opacity-60" />}
             </button>
+          </div>
+
+          {/* Auth chip */}
+          <div className="flex items-center gap-2 self-start md:self-auto">
+            {session ? (
+              <>
+                <span className="text-[10px] text-slate-400 font-mono bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
+                  {role === "admin" ? "👑 Admin" : role === "runner" ? "🏍️ Runner" : "👤 Pengguna"}
+                </span>
+                <button
+                  onClick={() => signOut()}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-rose-400 hover:border-rose-500/40 transition-all"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Keluar</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => navigate({ to: "/auth" })}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-bold bg-amber-500/10 border border-amber-500/40 text-amber-400 hover:bg-amber-500/20 transition-all"
+              >
+                <LogIn className="w-3 h-3" />
+                <span>Log Masuk</span>
+              </button>
+            )}
           </div>
 
         </div>
