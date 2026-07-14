@@ -90,67 +90,8 @@ export default function App() {
   // Active accepted order for the current runner
   const activeOrder = orders.find(o => o.runnerId === selectedRunnerId && o.status !== "COMPLETED") || null;
 
-  // Initialize with some default pending jobs to populate the runner's board on startup
-  useEffect(() => {
-    const initialOrders: Order[] = [
-      {
-        id: "job-1",
-        title: "Belikan Pisang Goreng Panas & Karipap",
-        type: "FOOD",
-        vehicleType: "MOTORCYCLE",
-        status: "PENDING",
-        pickupLocation: MAP_LOCATIONS.pak_ayob,
-        dropoffLocation: MAP_LOCATIONS.flat_sentosa,
-        items: [
-          { id: "p1", name: "Pisang Goreng RM5", quantity: 1, completed: false },
-          { id: "p2", name: "Karipap Kentang", quantity: 5, completed: false }
-        ],
-        fee: 6.00,
-        totalCost: 10.00,
-        notes: "Cari gerai sebelah pokok besar ya, sambal kicap nak lebih.",
-        customerName: "Kak Shida Flat B",
-        customerPhone: "019-2233445",
-        createdAt: new Date().toLocaleTimeString(),
-        progressPercent: 0
-      },
-      {
-        id: "job-2",
-        title: "Angkat Almari Jati & Meja Makan",
-        type: "HEAVY_LIFTING",
-        vehicleType: "LORRY",
-        status: "PENDING",
-        pickupLocation: MAP_LOCATIONS.perabot_jati,
-        dropoffLocation: MAP_LOCATIONS.kondo_harmoni,
-        items: [
-          { id: "a1", name: "Almari Jati 2 Pintu", quantity: 1, completed: false },
-          { id: "a2", name: "Meja Makan Bulat", quantity: 1, completed: false }
-        ],
-        fee: 35.00,
-        totalCost: 0,
-        notes: "Kena bawa tali ikat kuat-kuat atas motor/lori. Saya tolong angkat sekali.",
-        customerName: "Abang Kamal",
-        customerPhone: "012-9988776",
-        createdAt: new Date().toLocaleTimeString(),
-        progressPercent: 0
-      }
-    ];
+  // Tiada tempahan demo — bermula kosong.
 
-    setOrders(initialOrders);
-    
-    // Set up default chats for these orders
-    const initialChats: { [orderId: string]: ChatMessage[] } = {};
-    initialOrders.forEach(o => {
-      initialChats[o.id] = [
-        {
-          id: `sys-${Date.now()}-1`,
-          sender: "system",
-          text: `Tempahan "${o.title}" telah diposkan ke papan tugasan.`,
-          timestamp: o.createdAt
-        }
-      ];
-    });
-    setChats(initialChats);
-  }, []);
 
   // Handle map landmark selection (injects into custom form)
   const handleSelectMapLocation = (location: Location) => {
