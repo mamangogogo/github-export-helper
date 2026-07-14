@@ -906,6 +906,40 @@ export default function AdminPanel({
               />
             </div>
 
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1 flex items-center justify-between">
+                <span>Logo Kedai / Perkhidmatan</span>
+                <span className="text-[9px] text-emerald-400 font-bold">Pilihan (Optional) · Maks 500KB</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+                  {shopLogoUrl ? (
+                    <img src={shopLogoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <Store className="w-5 h-5 text-slate-600" />
+                  )}
+                </div>
+                <div className="flex-1 flex items-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-xl text-[11px] font-bold text-slate-300 transition-all">
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>{shopLogoUrl ? "Tukar Logo" : "Muat Naik Logo"}</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleShopLogoUpload} />
+                  </label>
+                  {shopLogoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setShopLogoUrl("")}
+                      className="p-2 hover:bg-red-950/40 hover:text-red-400 text-slate-500 rounded-lg cursor-pointer transition-colors"
+                      title="Buang logo"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Jenis Lokasi</label>
