@@ -293,24 +293,23 @@ export default function App() {
 
         setAdminRevenue(prev => parseFloat((prev + commission).toFixed(2)));
 
-        setRunners(prevRunners => prevRunners.map(r => {
-          if (r.id === (targetOrder.runnerId || selectedRunnerId)) {
-            const prev = r.stats;
-            return {
-              ...r,
-              stats: {
-                ...prev,
-                completedDeliveries: prev.completedDeliveries + 1,
-                totalEarnings: parseFloat((prev.totalEarnings + runnerNet).toFixed(2)),
-                todayEarnings: parseFloat((prev.todayEarnings + runnerNet).toFixed(2)),
-                activeStreak: prev.activeStreak + 1,
-                level: Math.floor((prev.completedDeliveries + 1) / 3) + 1,
-                fuelSaved: parseFloat((prev.fuelSaved + 0.35).toFixed(2))
-              }
-            };
-          }
-          return r;
-        }));
+        // Update stat overlay for the completing runner
+        const targetRunnerId = targetOrder.runnerId || selectedRunnerId;
+        const currentRunner = runners.find(r => r.id === targetRunnerId);
+        if (currentRunner) {
+          const prev = currentRunner.stats;
+          setRunnerStatOverlay(o => ({
+            ...o,
+            [targetRunnerId]: {
+              completedDeliveries: prev.completedDeliveries + 1,
+              totalEarnings: parseFloat((prev.totalEarnings + runnerNet).toFixed(2)),
+              todayEarnings: parseFloat((prev.todayEarnings + runnerNet).toFixed(2)),
+              activeStreak: prev.activeStreak + 1,
+              level: Math.floor((prev.completedDeliveries + 1) / 3) + 1,
+              fuelSaved: parseFloat((prev.fuelSaved + 0.35).toFixed(2)),
+            },
+          }));
+        }
         addSystemNotification(`Job Selesai! RM ${runnerNet.toFixed(2)} dikreditkan ke dompet Runner (Komisen Admin RM ${commission.toFixed(2)} ditolak).`);
       }
     }
