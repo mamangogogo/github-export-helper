@@ -72,9 +72,13 @@ export default function App() {
     LORRY: { normal: 45.00, rainy: 50.00 }
   });
 
-  // Derive active runner and runnerStats dynamically
-  const activeRunner = runners.find(r => r.id === selectedRunnerId) || runners[0];
-  const runnerStats = activeRunner.stats;
+  // Derive active runner and runnerStats dynamically (fallback jika tiada runner didaftar lagi)
+  const FALLBACK_STATS: RunnerStats = {
+    completedDeliveries: 0, totalEarnings: 0, activeStreak: 0, rating: 5.0,
+    todayEarnings: 0, level: 1, fuelSaved: 0,
+  };
+  const activeRunner = runners.find(r => r.id === selectedRunnerId) || runners[0] || null;
+  const runnerStats = activeRunner?.stats || FALLBACK_STATS;
 
   // Active accepted order for the current runner
   const activeOrder = orders.find(o => o.runnerId === selectedRunnerId && o.status !== "COMPLETED") || null;
