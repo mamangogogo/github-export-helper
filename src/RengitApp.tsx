@@ -579,6 +579,36 @@ export default function App() {
     }
   };
 
+  const handleUpdateRunnerStatus = async (runnerId: string, status: "ACTIVE" | "OFFLINE" | "CUTI") => {
+    try {
+      await updateRunnerStatus(runnerId, status);
+      const label = status === "ACTIVE" ? "Aktif" : status === "OFFLINE" ? "Offline" : "Cuti";
+      addSystemNotification(`Status runner dikemaskini: ${label}.`);
+    } catch (err: any) {
+      alert(`Gagal kemaskini status: ${err?.message || "ralat"}`);
+    }
+  };
+
+  const handleMarkRunnerPaid = async (runnerId: string, scope: "today" | "total") => {
+    try {
+      await resetRunnerEarnings(runnerId, scope);
+      setRunnerStatOverlay(o => {
+        const next = { ...o };
+        if (next[runnerId]) {
+          next[runnerId] = {
+            ...next[runnerId],
+            todayEarnings: 0,
+            ...(scope === "total" ? { totalEarnings: 0 } : {}),
+          };
+        }
+        return next;
+      });
+      addSystemNotification(scope === "today" ? "Gaji harian ditandakan sebagai dibayar." : "Semua baki ditandakan sebagai dibayar.");
+    } catch (err: any) {
+      alert(`Gagal: ${err?.message || "ralat"}`);
+    }
+
+
   const handleUpdateRunnerVehicle = (runnerId: string, vehicleType: VehicleType) => {
     // Kenderaan aktif hanya UI-level (tidak persist)
     const vehMalay = vehicleType === "MOTORCYCLE" ? "Motosikal" : vehicleType === "CAR" ? "Kereta" : vehicleType === "PICKUP" ? "Pikap" : "Lori";
