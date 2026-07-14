@@ -26,7 +26,7 @@ function rowToRunner(row: RunnerRow): Runner {
     phone: row.phone,
     vehicleType: row.vehicle_type as VehicleType,
     vehicles: (row.vehicles as VehicleType[]) || [row.vehicle_type as VehicleType],
-    status: (row.status as "ACTIVE" | "OFFLINE") || "ACTIVE",
+    status: (row.status as "ACTIVE" | "OFFLINE" | "CUTI") || "ACTIVE",
     stats: {
       completedDeliveries: row.completed_deliveries,
       totalEarnings: Number(row.total_earnings),
