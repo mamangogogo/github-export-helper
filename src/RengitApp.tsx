@@ -25,6 +25,7 @@ export default function App() {
   const { session, role, loading: authLoading, signOut } = useSession();
 
   const [activeMode, setActiveMode] = useState<"customer" | "runner" | "admin">("customer");
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [weather, setWeather] = useState<"sunny" | "rainy">("sunny");
   const [demandLevel, setDemandLevel] = useState<"normal" | "high" | "peak">("high");
   const [orders, setOrders] = useState<Order[]>([]);
