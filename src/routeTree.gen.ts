@@ -10,43 +10,33 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiCustomerReplyRouteImport } from './routes/api/customer.reply'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiCustomerReplyRoute = ApiCustomerReplyRouteImport.update({
-  id: '/api/customer/reply',
-  path: '/api/customer/reply',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/customer/reply': typeof ApiCustomerReplyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/customer/reply': typeof ApiCustomerReplyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/customer/reply': typeof ApiCustomerReplyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/customer/reply'
+  fullPaths: '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/customer/reply'
-  id: '__root__' | '/' | '/api/customer/reply'
+  to: '/'
+  id: '__root__' | '/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiCustomerReplyRoute: typeof ApiCustomerReplyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,19 +48,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/customer/reply': {
-      id: '/api/customer/reply'
-      path: '/api/customer/reply'
-      fullPath: '/api/customer/reply'
-      preLoaderRoute: typeof ApiCustomerReplyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiCustomerReplyRoute: ApiCustomerReplyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
