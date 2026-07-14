@@ -64,7 +64,8 @@ export default function CustomerPanel({
 
   // Custom Form States
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<OrderType>("FOOD");
+  const [type, setType] = useState<OrderType>("ODD_JOBS");
+  const [typeText, setTypeText] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("MOTORCYCLE");
   const [pickupId, setPickupId] = useState("pak_ayob");
   const [dropoffId, setDropoffId] = useState("flat_sentosa");
