@@ -304,7 +304,7 @@ export default function CustomerPanel({
           }`}
         >
           <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
-          <span>Servis Mudah (Preset)</span>
+          <span>Kedai Berdaftar</span>
         </button>
         <button
           onClick={() => setActiveTab("custom")}
