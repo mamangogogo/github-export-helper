@@ -41,7 +41,7 @@ export default function App() {
   const [isCustomerTyping, setIsCustomerTyping] = useState(false);
 
   // DB-backed runners with local stat overlay (stats increment locally until orders persist)
-  const { runners: dbRunners, addRunner, deleteRunner, updateRunnerVehicles } = useRunnersDB();
+  const { runners: dbRunners, addRunner, deleteRunner, updateRunnerVehicles, updateRunnerStatus, resetRunnerEarnings } = useRunnersDB();
   const [runnerStatOverlay, setRunnerStatOverlay] = useState<{ [id: string]: Partial<RunnerStats> }>({});
   const runners: Runner[] = dbRunners.length > 0
     ? dbRunners.map(r => ({ ...r, stats: { ...r.stats, ...(runnerStatOverlay[r.id] || {}) } }))
