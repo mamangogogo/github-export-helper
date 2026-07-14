@@ -532,35 +532,7 @@ export default function CustomerPanel({
               </p>
             </div>
 
-            {/* Maklumat Hubungi Kedai (Jika Ada) — cari ikut nama yang ditaip */}
-            {(() => {
-              const selectedPickup = currentLocations[pickupId];
-              if (selectedPickup && selectedPickup.phone) {
-                return (
-                  <div className="bg-amber-500/5 border border-amber-500/20 p-3 rounded-2xl flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                        <Phone className="w-4 h-4 animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-amber-500 font-bold uppercase tracking-wider leading-none mb-1">Mahu semak status kedai?</p>
-                        <p className="text-white font-semibold leading-normal">
-                          {selectedPickup.name}: <span className="font-mono font-black text-amber-400">{selectedPickup.phone}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <a
-                      href={`tel:${selectedPickup.phone}`}
-                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[10px] uppercase rounded-xl transition-all cursor-pointer flex items-center gap-1 shrink-0 shadow-md shadow-amber-500/15"
-                    >
-                      <Phone className="w-3 h-3" />
-                      <span>Hubungi</span>
-                    </a>
-                  </div>
-                );
-              }
-              return null;
-            })()}
+            {/* Nota: Runner akan hubungi kedai; pelanggan tak perlu semak status kedai. */}
 
             {/* Dynamic Items List */}
             <div className="bg-slate-950 border border-slate-800/60 rounded-2xl p-4">
