@@ -56,6 +56,11 @@ export default function App() {
     }
   }, [runners, selectedRunnerId]);
 
+  // Auto-keluar dari mod admin/runner jika tiada session atau peranan tidak layak
+  useEffect(() => {
+    if (activeMode === "admin" && role !== "admin") setActiveMode("customer");
+  }, [activeMode, role]);
+
   // Financial configurations
   const [minFee, setMinFee] = useState<number>(5.00);
   const [commissionRate, setCommissionRate] = useState<number>(10); // percent commission
