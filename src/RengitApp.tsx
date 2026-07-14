@@ -11,6 +11,7 @@ import CustomerPanel from "./components/CustomerPanel";
 import RunnerPanel from "./components/RunnerPanel";
 import AdminPanel from "./components/AdminPanel";
 import ChatBox from "./components/ChatBox";
+import AuthModal from "./components/AuthModal";
 import { useSession } from "./hooks/useSession";
 import { useShops } from "./hooks/useShops";
 import { useRunners as useRunnersDB } from "./hooks/useRunners";
