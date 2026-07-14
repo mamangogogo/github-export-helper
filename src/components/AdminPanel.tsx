@@ -107,6 +107,23 @@ export default function AdminPanel({
   const [shopAddress, setShopAddress] = useState("");
   const [shopPhone, setShopPhone] = useState("");
   const [shopType, setShopType] = useState<"shop" | "residential" | "office">("shop");
+  const [shopLogoUrl, setShopLogoUrl] = useState<string>("");
+
+  const handleShopLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      alert("Sila pilih fail imej sahaja (PNG / JPG).");
+      return;
+    }
+    if (file.size > 500 * 1024) {
+      alert("Saiz logo terlalu besar. Sila pilih imej di bawah 500KB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setShopLogoUrl(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  };
 
   // Runner state form
   const [runnerName, setRunnerName] = useState("");
@@ -135,6 +152,7 @@ export default function AdminPanel({
       y: randomY,
       address: shopAddress.trim(),
       phone: shopPhone.trim() || undefined,
+      logoUrl: shopLogoUrl || undefined,
     };
 
     onRegisterLocation(newLoc);
@@ -144,6 +162,7 @@ export default function AdminPanel({
     setShopAddress("");
     setShopPhone("");
     setShopType("shop");
+    setShopLogoUrl("");
   };
 
   const handleRegisterRunner = (e: React.FormEvent) => {
@@ -887,6 +906,40 @@ export default function AdminPanel({
               />
             </div>
 
+            <div>
+              <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1 flex items-center justify-between">
+                <span>Logo Kedai / Perkhidmatan</span>
+                <span className="text-[9px] text-emerald-400 font-bold">Pilihan (Optional) · Maks 500KB</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden shrink-0">
+                  {shopLogoUrl ? (
+                    <img src={shopLogoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  ) : (
+                    <Store className="w-5 h-5 text-slate-600" />
+                  )}
+                </div>
+                <div className="flex-1 flex items-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/50 rounded-xl text-[11px] font-bold text-slate-300 transition-all">
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    <span>{shopLogoUrl ? "Tukar Logo" : "Muat Naik Logo"}</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleShopLogoUpload} />
+                  </label>
+                  {shopLogoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setShopLogoUrl("")}
+                      className="p-2 hover:bg-red-950/40 hover:text-red-400 text-slate-500 rounded-lg cursor-pointer transition-colors"
+                      title="Buang logo"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Jenis Lokasi</label>
@@ -933,9 +986,15 @@ export default function AdminPanel({
                 return (
                   <div key={loc.id} className="bg-slate-950/40 p-2.5 rounded-xl border border-slate-850 flex items-center justify-between text-xs hover:border-slate-800 transition-colors">
                     <div className="flex items-center gap-2.5">
-                      <span className={`p-1.5 rounded-lg ${loc.type === "shop" ? "bg-amber-500/10 text-amber-400" : "bg-sky-500/10 text-sky-400"}`}>
-                        <Store className="w-3.5 h-3.5" />
-                      </span>
+                      {loc.logoUrl ? (
+                        <span className="w-7 h-7 rounded-lg overflow-hidden border border-slate-800 shrink-0">
+                          <img src={loc.logoUrl} alt={loc.name} className="w-full h-full object-cover" />
+                        </span>
+                      ) : (
+                        <span className={`p-1.5 rounded-lg ${loc.type === "shop" ? "bg-amber-500/10 text-amber-400" : "bg-sky-500/10 text-sky-400"}`}>
+                          <Store className="w-3.5 h-3.5" />
+                        </span>
+                      )}
                       <div>
                         <p className="font-bold text-white leading-normal flex items-center gap-1.5 flex-wrap">
                           {loc.name}
