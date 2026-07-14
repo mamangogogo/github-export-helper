@@ -324,42 +324,57 @@ export default function CustomerPanel({
         {activeTab === "template" ? (
           <div className="flex flex-col gap-4">
             <div className="text-slate-400 text-xs leading-relaxed">
-              Ketik sahaja salah satu servis di bawah untuk terus memanggil runner di kawasan anda:
+              Pilih kedai berdaftar di bawah untuk terus mengisi butiran tempahan. Senarai kedai diurus oleh Admin.
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {JOB_TEMPLATES.map((tpl, idx) => (
-                <div 
-                  key={idx}
-                  className="bg-slate-950/60 hover:bg-slate-950 border border-slate-800/80 hover:border-slate-700 rounded-2xl p-4 transition-all flex flex-col justify-between group cursor-pointer"
-                  onClick={() => handleSelectTemplate(tpl)}
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="p-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center">
-                        {getOrderIcon(tpl.type)}
-                      </span>
-                      <span className="bg-slate-900 text-emerald-400 text-xs font-bold px-2 py-1 rounded-md border border-slate-800/80 flex items-center gap-1">
-                        <Coins className="w-3 h-3" />
-                        Upah: RM {tpl.fee.toFixed(2)}
-                      </span>
+            {(() => {
+              const shops = Object.values(currentLocations).filter((l) => l.type === "shop");
+              if (shops.length === 0) {
+                return (
+                  <div className="bg-slate-950/60 border border-dashed border-slate-800 rounded-2xl p-6 text-center">
+                    <MapPin className="w-6 h-6 text-slate-600 mx-auto mb-2" />
+                    <p className="text-xs text-slate-400 font-semibold">Belum ada kedai berdaftar.</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Admin perlu daftar kedai dahulu di Panel Admin.</p>
+                  </div>
+                );
+              }
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {shops.map((shop) => (
+                    <div
+                      key={shop.id}
+                      className="bg-slate-950/60 hover:bg-slate-950 border border-slate-800/80 hover:border-amber-500/50 rounded-2xl p-4 transition-all flex flex-col justify-between group cursor-pointer"
+                      onClick={() => handleSelectShop(shop)}
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <span className="p-1.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center justify-center">
+                            <ShoppingBag className="w-5 h-5 text-amber-400" />
+                          </span>
+                          {shop.phone && (
+                            <span className="bg-slate-900 text-slate-300 text-[10px] font-bold px-2 py-1 rounded-md border border-slate-800/80 flex items-center gap-1 font-mono">
+                              <Phone className="w-3 h-3" />
+                              {shop.phone}
+                            </span>
+                          )}
+                        </div>
+                        <h4 className="text-xs font-black text-white group-hover:text-amber-400 transition-colors line-clamp-1">{shop.name}</h4>
+                        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                          {shop.address}
+                        </p>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-slate-900/50 flex items-center justify-between">
+                        <span className="text-[9px] text-slate-500 uppercase font-bold tracking-wider">Kedai Berdaftar</span>
+                        <span className="text-[11px] font-bold text-slate-300 group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                          Tempah →
+                        </span>
+                      </div>
                     </div>
-                    <h4 className="text-xs font-black text-white group-hover:text-amber-400 transition-colors line-clamp-1">{tpl.title}</h4>
-                    <p className="text-[10px] text-slate-400 mt-1 font-mono leading-relaxed line-clamp-2">
-                      Tugas: {tpl.items.map(i => `${i.quantity}x ${i.name}`).join(", ")}
-                    </p>
-                  </div>
-                  <div className="mt-4 pt-3 border-t border-slate-900/50 flex items-center justify-between">
-                    <span className="text-[9px] text-slate-500">
-                      Lokasi: {currentLocations[tpl.pickupId]?.name}
-                    </span>
-                    <span className="text-[11px] font-bold text-slate-300 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                      Pesan Sekarang →
-                    </span>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
+
         ) : (
           <form onSubmit={handleSubmitCustomOrder} className="flex flex-col gap-4">
             {/* Title */}
