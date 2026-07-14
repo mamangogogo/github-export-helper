@@ -1213,6 +1213,105 @@ export default function AdminPanel({
         </div>
       )}
 
+      {/* CONFIRMATION MODAL FOR RUNNER DELETION */}
+      {runnerToDelete && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="p-3.5 bg-red-500/10 text-red-500 rounded-2xl border border-red-500/20 animate-bounce">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wider font-mono">
+                  Pengesahan Padam Runner
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                  Adakah anda pasti mahu memadam runner ini? Tindakan ini tidak boleh dikembalikan.
+                </p>
+              </div>
+            </div>
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-850 text-left">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Bike className="w-4 h-4 text-amber-500" />
+                <span className="text-xs font-black text-white">{runnerToDelete.name}</span>
+              </div>
+              <p className="text-[10px] text-slate-400 leading-normal pl-6">
+                📞 {runnerToDelete.phone}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-1">
+              <button
+                type="button"
+                onClick={() => setRunnerToDelete(null)}
+                className="py-3 bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-black rounded-xl transition-all cursor-pointer border border-slate-750"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onDeleteRunner(runnerToDelete.id);
+                  setRunnerToDelete(null);
+                }}
+                className="py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-black rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg shadow-red-600/10"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Ya, Padam</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRMATION MODAL FOR ORDER CANCELLATION */}
+      {orderToDelete && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex flex-col items-center text-center gap-3">
+              <div className="p-3.5 bg-red-500/10 text-red-500 rounded-2xl border border-red-500/20 animate-bounce">
+                <ShieldAlert className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wider font-mono">
+                  Pengesahan Padam Tempahan
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+                  Adakah anda pasti mahu memadam/membatalkan tempahan ini? Tindakan ini tidak boleh dikembalikan.
+                </p>
+              </div>
+            </div>
+            <div className="bg-slate-950 p-3.5 rounded-2xl border border-slate-850 text-left">
+              <p className="text-xs font-black text-white font-mono">#{orderToDelete.id.slice(0, 8)}</p>
+              <p className="text-[10px] text-slate-400 leading-normal mt-1">
+                {orderToDelete.customerName} • {orderToDelete.customerPhone}
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-1">
+              <button
+                type="button"
+                onClick={() => setOrderToDelete(null)}
+                className="py-3 bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-black rounded-xl transition-all cursor-pointer border border-slate-750"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onCancelOrder(orderToDelete.id);
+                  setOrderToDelete(null);
+                }}
+                className="py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-black rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-lg shadow-red-600/10"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Ya, Padam</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
         </>
 
 
