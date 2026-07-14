@@ -986,9 +986,15 @@ export default function AdminPanel({
                 return (
                   <div key={loc.id} className="bg-slate-950/40 p-2.5 rounded-xl border border-slate-850 flex items-center justify-between text-xs hover:border-slate-800 transition-colors">
                     <div className="flex items-center gap-2.5">
-                      <span className={`p-1.5 rounded-lg ${loc.type === "shop" ? "bg-amber-500/10 text-amber-400" : "bg-sky-500/10 text-sky-400"}`}>
-                        <Store className="w-3.5 h-3.5" />
-                      </span>
+                      {loc.logoUrl ? (
+                        <span className="w-7 h-7 rounded-lg overflow-hidden border border-slate-800 shrink-0">
+                          <img src={loc.logoUrl} alt={loc.name} className="w-full h-full object-cover" />
+                        </span>
+                      ) : (
+                        <span className={`p-1.5 rounded-lg ${loc.type === "shop" ? "bg-amber-500/10 text-amber-400" : "bg-sky-500/10 text-sky-400"}`}>
+                          <Store className="w-3.5 h-3.5" />
+                        </span>
+                      )}
                       <div>
                         <p className="font-bold text-white leading-normal flex items-center gap-1.5 flex-wrap">
                           {loc.name}
