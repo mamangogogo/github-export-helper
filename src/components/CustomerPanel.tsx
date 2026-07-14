@@ -86,6 +86,7 @@ export default function CustomerPanel({
     if (selectedMapLocation) {
       if (selectedMapLocation.type === "shop") {
         setPickupId(selectedMapLocation.id);
+        setPickupText(selectedMapLocation.name);
         setActiveTab("custom");
       } else {
         setDropoffId(selectedMapLocation.id);
