@@ -68,6 +68,7 @@ export default function CustomerPanel({
   const [typeText, setTypeText] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("MOTORCYCLE");
   const [pickupId, setPickupId] = useState("pak_ayob");
+  const [pickupText, setPickupText] = useState("");
   const [dropoffId, setDropoffId] = useState("flat_sentosa");
   const [notes, setNotes] = useState("");
   const [fee, setFee] = useState(6.00);
