@@ -30,6 +30,9 @@ interface AdminPanelProps {
   onRegisterRunner: (runner: Runner) => void;
   onDeleteRunner: (id: string) => void;
   onUpdateRunnerVehicles?: (runnerId: string, vehicles: VehicleType[]) => void;
+  onUpdateRunnerStatus?: (runnerId: string, status: "ACTIVE" | "OFFLINE" | "CUTI") => void;
+  onMarkRunnerPaid?: (runnerId: string, scope: "today" | "total") => void;
+
   minFee: number;
   onChangeMinFee: (fee: number) => void;
   commissionRate: number;
