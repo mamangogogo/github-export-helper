@@ -1138,7 +1138,7 @@ export default function AdminPanel({
                       {isCustom ? (
                         <button
                           type="button"
-                          onClick={() => onDeleteRunner(run.id)}
+                          onClick={() => setRunnerToDelete(run)}
                           className="p-1 hover:bg-red-950/40 hover:text-red-400 text-slate-500 rounded cursor-pointer transition-colors"
                           title="Padam runner ini"
                         >
