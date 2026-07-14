@@ -139,12 +139,39 @@ export default function CustomerPanel({
     const availableLocs = Object.values(currentLocations);
     if (availableLocs.length === 0) return;
 
+    // Titik mula: gunakan kedai berdaftar jika nama sepadan, jika tidak bina lokasi custom dari teks
+    const matchedShop = Object.values(currentLocations).find(
+      (l) => l.name.trim().toLowerCase() === pickupText.trim().toLowerCase()
+    );
+    const pickupLocation: Location = matchedShop
+      ? matchedShop
+      : pickupText.trim()
+        ? {
+            id: `custom-pickup-${Date.now()}`,
+            name: pickupText.trim(),
+            type: "shop",
+            x: 30,
+            y: 30,
+            address: pickupText.trim(),
+          }
+        : currentLocations[pickupId] || availableLocs[0];
+
+    // Destinasi hantar: guna alamat pelanggan
+    const dropoffLocation: Location = {
+      id: `customer-dropoff-${Date.now()}`,
+      name: customerName.trim() || "Alamat Pelanggan",
+      type: "residential",
+      x: 70,
+      y: 70,
+      address: customerAddress.trim(),
+    };
+
     onCreateOrder({
       title: title.trim(),
       type: type,
       vehicleType: vehicleType,
-      pickupLocation: currentLocations[pickupId] || availableLocs[0],
-      dropoffLocation: currentLocations[dropoffId] || availableLocs[1] || availableLocs[0],
+      pickupLocation,
+      dropoffLocation,
       items: items,
       fee: fee,
       totalCost: estimatedCost,
@@ -163,6 +190,7 @@ export default function CustomerPanel({
   const handleSelectShop = (shop: Location) => {
     // Pilih kedai berdaftar → tukar ke tab custom & set pickup
     setPickupId(shop.id);
+    setPickupText(shop.name);
     setActiveTab("custom");
   };
 
