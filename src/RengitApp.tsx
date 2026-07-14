@@ -498,60 +498,78 @@ export default function App() {
     addSystemNotification(`Pengumuman Berjaya Disiarkan ke ${orders.length} sembang!`);
   };
 
-  // Registration and deletion handlers for Locations
-  const handleRegisterLocation = (newLoc: Location) => {
-    setLocations(prev => ({
-      ...prev,
-      [newLoc.id]: newLoc
-    }));
-    addSystemNotification(`Kedai "${newLoc.name}" berjaya didaftarkan!`);
+  // Registration and deletion handlers for Locations (kedai) — kini melalui DB
+  const handleRegisterLocation = async (newLoc: Location) => {
+    try {
+      await addShop({
+        name: newLoc.name,
+        address: newLoc.address,
+        phone: newLoc.phone,
+        logoUrl: newLoc.logoUrl,
+        x: newLoc.x,
+        y: newLoc.y,
+      } as any);
+      addSystemNotification(`Kedai "${newLoc.name}" berjaya didaftarkan!`);
+    } catch (err: any) {
+      alert(`Gagal daftar kedai: ${err?.message || "ralat"}`);
+    }
   };
 
-  const handleDeleteLocation = (id: string) => {
-    setLocations(prev => {
-      const updated = { ...prev };
-      delete updated[id];
-      return updated;
-    });
-    addSystemNotification("Kedai berjaya dibuang.");
-  };
-
-  // Registration and deletion handlers for Runners
-  const handleRegisterRunner = (newRunner: Runner) => {
-    setRunners(prev => [...prev, newRunner]);
-    addSystemNotification(`Runner "${newRunner.name}" berjaya didaftarkan!`);
-  };
-
-  const handleDeleteRunner = (id: string) => {
-    if (id === "runner_1") {
-      alert("Anda tidak boleh memadam runner utama!");
+  const handleDeleteLocation = async (id: string) => {
+    // Jangan buang lokasi built-in (bukan UUID DB)
+    if (MAP_LOCATIONS[id]) {
+      alert("Lokasi ini adalah lokasi contoh dan tidak boleh dibuang.");
       return;
     }
-    setRunners(prev => prev.filter(r => r.id !== id));
-    if (selectedRunnerId === id) {
-      setSelectedRunnerId("runner_1");
+    try {
+      await deleteShop(id);
+      addSystemNotification("Kedai berjaya dibuang.");
+    } catch (err: any) {
+      alert(`Gagal buang kedai: ${err?.message || "ralat"}`);
     }
-    addSystemNotification("Runner berjaya dipadam.");
   };
 
-  const handleUpdateRunnerVehicles = (runnerId: string, vehicles: VehicleType[]) => {
-    setRunners(prev => prev.map(r => {
-      if (r.id === runnerId) {
-        const updatedVehicles = vehicles.length > 0 ? vehicles : [r.vehicleType];
-        const updatedVehicleType = updatedVehicles.includes(r.vehicleType) ? r.vehicleType : updatedVehicles[0];
-        return {
-          ...r,
-          vehicles: updatedVehicles,
-          vehicleType: updatedVehicleType
-        };
+  // Registration and deletion handlers for Runners — kini melalui DB
+  const handleRegisterRunner = async (newRunner: Runner) => {
+    try {
+      await addRunner({
+        name: newRunner.name,
+        phone: newRunner.phone,
+        vehicleType: newRunner.vehicleType,
+        vehicles: newRunner.vehicles || [newRunner.vehicleType],
+        status: newRunner.status || "ACTIVE",
+      });
+      addSystemNotification(`Runner "${newRunner.name}" berjaya didaftarkan!`);
+    } catch (err: any) {
+      alert(`Gagal daftar runner: ${err?.message || "ralat"}`);
+    }
+  };
+
+  const handleDeleteRunner = async (id: string) => {
+    try {
+      await deleteRunner(id);
+      if (selectedRunnerId === id && runners.length > 1) {
+        const next = runners.find(r => r.id !== id);
+        if (next) setSelectedRunnerId(next.id);
       }
-      return r;
-    }));
-    addSystemNotification("Senarai kenderaan dimiliki dikemaskini.");
+      addSystemNotification("Runner berjaya dipadam.");
+    } catch (err: any) {
+      alert(`Gagal padam runner: ${err?.message || "ralat"}`);
+    }
+  };
+
+  const handleUpdateRunnerVehicles = async (runnerId: string, vehicles: VehicleType[]) => {
+    try {
+      const final = vehicles.length > 0 ? vehicles : ["MOTORCYCLE" as VehicleType];
+      await updateRunnerVehicles(runnerId, final);
+      addSystemNotification("Senarai kenderaan dimiliki dikemaskini.");
+    } catch (err: any) {
+      alert(`Gagal kemaskini: ${err?.message || "ralat"}`);
+    }
   };
 
   const handleUpdateRunnerVehicle = (runnerId: string, vehicleType: VehicleType) => {
-    setRunners(prev => prev.map(r => r.id === runnerId ? { ...r, vehicleType } : r));
+    // Kenderaan aktif hanya UI-level (tidak persist)
     const vehMalay = vehicleType === "MOTORCYCLE" ? "Motosikal" : vehicleType === "CAR" ? "Kereta" : vehicleType === "PICKUP" ? "Pikap" : "Lori";
     addSystemNotification(`Kenderaan aktif ditukar kepada ${vehMalay}.`);
   };
