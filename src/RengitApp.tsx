@@ -607,6 +607,9 @@ export default function App() {
     } catch (err: any) {
       alert(`Gagal: ${err?.message || "ralat"}`);
     }
+  };
+
+
 
 
   const handleUpdateRunnerVehicle = (runnerId: string, vehicleType: VehicleType) => {
