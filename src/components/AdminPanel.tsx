@@ -728,7 +728,7 @@ export default function AdminPanel({
                         <button
                           title="Padam/Batal tempahan"
                           type="button"
-                          onClick={() => onCancelOrder(o.id)}
+                          onClick={() => setOrderToDelete(o)}
                           className="p-1.5 bg-slate-950 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-slate-850 rounded-lg cursor-pointer transition-all"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
