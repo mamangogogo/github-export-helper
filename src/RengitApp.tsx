@@ -875,6 +875,9 @@ export default function App() {
               onRegisterRunner={handleRegisterRunner}
               onDeleteRunner={handleDeleteRunner}
               onUpdateRunnerVehicles={handleUpdateRunnerVehicles}
+              onUpdateRunnerStatus={handleUpdateRunnerStatus}
+              onMarkRunnerPaid={handleMarkRunnerPaid}
+
               minFee={minFee}
               onChangeMinFee={setMinFee}
               commissionRate={commissionRate}
