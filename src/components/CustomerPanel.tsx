@@ -503,41 +503,39 @@ export default function CustomerPanel({
               </div>
             </div>
 
-            {/* Pickup & Dropoff Selectors */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1 text-amber-500">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>Titik Mula / Kedai</span>
-                </label>
-                <select
-                  value={pickupId}
-                  onChange={(e) => setPickupId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500"
-                >
-                  {Object.values(currentLocations).map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name} ({loc.type})</option>
+            {/* Titik Mula / Kedai (typing box) */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1 text-amber-500">
+                <MapPin className="w-3.5 h-3.5" />
+                <span>Titik Mula / Kedai</span>
+              </label>
+              <input
+                type="text"
+                value={pickupText}
+                onChange={(e) => {
+                  setPickupText(e.target.value);
+                  const match = Object.values(currentLocations).find(
+                    (l) => l.name.trim().toLowerCase() === e.target.value.trim().toLowerCase()
+                  );
+                  if (match) setPickupId(match.id);
+                }}
+                placeholder="cth: Kedai Runcit Pak Ali, Pekan Rengit"
+                list="pickup-shops"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-amber-500 placeholder-slate-600"
+              />
+              <datalist id="pickup-shops">
+                {Object.values(currentLocations)
+                  .filter((l) => l.type === "shop")
+                  .map((loc) => (
+                    <option key={loc.id} value={loc.name} />
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center gap-1 text-sky-400">
-                  <MapPin className="w-3.5 h-3.5" />
-                  <span>Destinasi Hantar</span>
-                </label>
-                <select
-                  value={dropoffId}
-                  onChange={(e) => setDropoffId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-sky-500"
-                >
-                  {Object.values(currentLocations).map((loc) => (
-                    <option key={loc.id} value={loc.id}>{loc.name} ({loc.type})</option>
-                  ))}
-                </select>
-              </div>
+              </datalist>
+              <p className="text-[9px] text-slate-500 mt-1">
+                Destinasi hantar automatik guna alamat anda di atas.
+              </p>
             </div>
 
-            {/* Maklumat Hubungi Kedai (Jika Ada) */}
+            {/* Maklumat Hubungi Kedai (Jika Ada) — cari ikut nama yang ditaip */}
             {(() => {
               const selectedPickup = currentLocations[pickupId];
               if (selectedPickup && selectedPickup.phone) {
