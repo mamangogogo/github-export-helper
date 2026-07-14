@@ -58,26 +58,23 @@ export default function CustomerPanel({
   const [activeTab, setActiveTab] = useState<"template" | "custom">("template");
 
   // Customer Contact Info (Wajib WhatsApp)
-  const [customerName, setCustomerName] = useState("Kak Kiah Sentosa");
+  const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("Tingkat 3, Blok B, Flat Sentosa, Pekan Rengit");
+  const [customerAddress, setCustomerAddress] = useState("");
 
   // Custom Form States
   const [title, setTitle] = useState("");
   const [type] = useState<OrderType>("ODD_JOBS");
   const [typeText, setTypeText] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("MOTORCYCLE");
-  const [pickupId, setPickupId] = useState("pak_ayob");
+  const [pickupId, setPickupId] = useState("");
   const [pickupText, setPickupText] = useState("");
-  const [dropoffId, setDropoffId] = useState("flat_sentosa");
+  const [dropoffId, setDropoffId] = useState("");
   const [notes, setNotes] = useState("");
   const [fee, setFee] = useState(6.00);
-  const [estimatedCost, setEstimatedCost] = useState(15.00);
-  
+
   // Custom Items
-  const [items, setItems] = useState<OrderItem[]>([
-    { id: "1", name: "Item Tempahan 1", quantity: 1 }
-  ]);
+  const [items, setItems] = useState<OrderItem[]>([]);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState(1);
 
@@ -129,15 +126,13 @@ export default function CustomerPanel({
       return;
     }
 
-    if (!title.trim() || items.length === 0) return;
+    if (!title.trim()) return;
 
     if (fee < minFee) {
       alert(`Maaf, upah minimum yang ditetapkan oleh Admin semasa ialah RM ${minFee.toFixed(2)}. Sila naikkan baki upah.`);
       return;
     }
 
-    const availableLocs = Object.values(currentLocations);
-    if (availableLocs.length === 0) return;
 
     // Titik mula: gunakan kedai berdaftar jika nama sepadan, jika tidak bina lokasi custom dari teks
     const matchedShop = Object.values(currentLocations).find(
@@ -154,7 +149,7 @@ export default function CustomerPanel({
             y: 30,
             address: pickupText.trim(),
           }
-        : currentLocations[pickupId] || availableLocs[0];
+        : currentLocations[pickupId] || Object.values(currentLocations)[0] || { id: "unknown", name: "-", type: "shop", x: 50, y: 50, address: "-" };
 
     // Destinasi hantar: guna alamat pelanggan
     const dropoffLocation: Location = {
@@ -174,16 +169,16 @@ export default function CustomerPanel({
       dropoffLocation,
       items: items,
       fee: fee,
-      totalCost: estimatedCost,
+      totalCost: 0,
       notes: typeText.trim() ? `Jenis: ${typeText.trim()}${notes.trim() ? `\n${notes.trim()}` : ""}` : notes,
-      customerName: customerName.trim() || "Kak Kiah Sentosa",
+      customerName: customerName.trim() || "Pelanggan",
       customerPhone: customerPhone.trim(),
       customerAddress: customerAddress.trim()
     });
 
     // Reset Form
     setTitle("");
-    setItems([{ id: "1", name: "Item Tempahan Baru", quantity: 1 }]);
+    setItems([]);
     setNotes("");
   };
 
@@ -535,35 +530,7 @@ export default function CustomerPanel({
               </p>
             </div>
 
-            {/* Maklumat Hubungi Kedai (Jika Ada) — cari ikut nama yang ditaip */}
-            {(() => {
-              const selectedPickup = currentLocations[pickupId];
-              if (selectedPickup && selectedPickup.phone) {
-                return (
-                  <div className="bg-amber-500/5 border border-amber-500/20 p-3 rounded-2xl flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                        <Phone className="w-4 h-4 animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-amber-500 font-bold uppercase tracking-wider leading-none mb-1">Mahu semak status kedai?</p>
-                        <p className="text-white font-semibold leading-normal">
-                          {selectedPickup.name}: <span className="font-mono font-black text-amber-400">{selectedPickup.phone}</span>
-                        </p>
-                      </div>
-                    </div>
-                    <a
-                      href={`tel:${selectedPickup.phone}`}
-                      className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-[10px] uppercase rounded-xl transition-all cursor-pointer flex items-center gap-1 shrink-0 shadow-md shadow-amber-500/15"
-                    >
-                      <Phone className="w-3 h-3" />
-                      <span>Hubungi</span>
-                    </a>
-                  </div>
-                );
-              }
-              return null;
-            })()}
+            {/* Nota: Runner akan hubungi kedai; pelanggan tak perlu semak status kedai. */}
 
             {/* Dynamic Items List */}
             <div className="bg-slate-950 border border-slate-800/60 rounded-2xl p-4">
@@ -616,43 +583,24 @@ export default function CustomerPanel({
               </div>
             </div>
 
-            {/* Notes & Costs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nota Khas / Pesanan Tambahan</label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Contoh: Tolong bawa tali ikat perabot sendiri ye bro."
-                  rows={2}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none placeholder-slate-700"
-                />
-              </div>
-              <div className="bg-slate-950 border border-slate-800 p-3 rounded-2xl flex flex-col justify-center">
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
-                  <span>Anggaran Kos Belanja:</span>
-                  <input
-                    type="number"
-                    value={estimatedCost}
-                    onChange={(e) => setEstimatedCost(parseFloat(e.target.value) || 0)}
-                    className="w-16 bg-slate-900 border border-slate-800 rounded text-center text-white px-1.5 py-0.5 text-xs"
-                  />
-                </div>
-                <div className="flex justify-between text-xs text-slate-400 mb-1">
-                  <span>Upah Runner Bersih:</span>
-                  <span className="text-emerald-400 font-mono">RM {fee.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-xs font-bold text-white border-t border-slate-800 pt-1.5 mt-1.5">
-                  <span>Jumlah Kasar:</span>
-                  <span className="text-indigo-400">RM {(estimatedCost + fee).toFixed(2)}</span>
-                </div>
-              </div>
+            {/* Notes */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nota Khas / Pesanan Tambahan</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Contoh: Tolong bawa tali ikat perabot sendiri ye bro."
+                rows={2}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white focus:outline-none placeholder-slate-700"
+              />
+              <p className="text-[9px] text-slate-500 mt-1.5 leading-relaxed">
+                💬 Harga barang akan dimaklumkan oleh runner melalui WhatsApp selepas semakan di kedai.
+              </p>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={items.length === 0}
               className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold py-3 px-4 rounded-xl text-xs transition-colors shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 mt-1 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -661,107 +609,7 @@ export default function CustomerPanel({
           </form>
         )}
       </div>
-
-      {/* Track Active Orders */}
-      <div className="flex flex-col gap-3">
-        <h3 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wide">
-          <Clock className="w-4 h-4 text-indigo-400 animate-pulse" />
-          <span>Status Permintaan Anda ({orders.length})</span>
-        </h3>
-
-        <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto pr-1">
-          {orders.map((ord) => (
-            <div key={ord.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-2.5">
-                  <span className="p-2 bg-slate-950 rounded-xl border border-slate-800">
-                    {getOrderIcon(ord.type)}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <h4 className="text-xs font-bold text-white line-clamp-1">{ord.title}</h4>
-                      <span className="bg-slate-950 text-slate-300 border border-slate-800/85 text-[8px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                        {getVehicleIcon(ord.vehicleType)}
-                        <span>{getVehicleLabelMalay(ord.vehicleType)}</span>
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5 font-mono">
-                      <span>{ord.pickupLocation.name}</span>
-                      <span>→</span>
-                      <span>{ord.dropoffLocation.name}</span>
-                    </p>
-                  </div>
-                </div>
-                <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full border ${getStatusBadge(ord.status)}`}>
-                  {getStatusTextMalay(ord.status)}
-                </span>
-              </div>
-
-              {/* Progress Slider Track (Visual only for customer) */}
-              {ord.status !== "PENDING" && ord.status !== "COMPLETED" && (
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[9px] font-mono text-slate-400">
-                    <span>Mula</span>
-                    <span className="text-indigo-400 font-bold">
-                      {ord.status === "ARRIVED_STORE" ? "Runner Sedang Melakukan Tugasan" : `OTW Ke Rumah: ${ord.progressPercent}%`}
-                    </span>
-                    <span>Hantar</span>
-                  </div>
-                  <div className="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
-                    <div 
-                      className="bg-indigo-500 h-full rounded-full transition-all duration-300"
-                      style={{ width: `${ord.status === "ARRIVED_STORE" ? 30 : Math.max(10, ord.progressPercent)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Runner Details & Action */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-800/60">
-                {ord.status === "PENDING" ? (
-                  <span className="text-[9px] text-slate-500 italic flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-                    Mencari runner terdekat di Taman Sentosa...
-                  </span>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-[10px] text-white">
-                      AS
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-bold text-slate-300 leading-tight">Ahmad Safwan</p>
-                      <p className="text-[9px] text-slate-500 font-mono">Yamaha Y15 • ★4.9</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-emerald-400 font-mono">
-                    RM {(ord.totalCost + ord.fee).toFixed(2)}
-                  </span>
-                  
-                  {ord.status !== "PENDING" && ord.status !== "COMPLETED" && (
-                    <button
-                      type="button"
-                      onClick={() => onOpenChat(ord)}
-                      className="bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 border border-indigo-500/20 p-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>Sembang</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {orders.length === 0 && (
-            <div className="border border-slate-800/80 border-dashed rounded-2xl p-6 text-center text-slate-500 text-xs">
-              Tiada permintaan aktif hantar. Sila pilih servis mudah atau buat tugas khas di atas!
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }
+

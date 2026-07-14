@@ -90,67 +90,8 @@ export default function App() {
   // Active accepted order for the current runner
   const activeOrder = orders.find(o => o.runnerId === selectedRunnerId && o.status !== "COMPLETED") || null;
 
-  // Initialize with some default pending jobs to populate the runner's board on startup
-  useEffect(() => {
-    const initialOrders: Order[] = [
-      {
-        id: "job-1",
-        title: "Belikan Pisang Goreng Panas & Karipap",
-        type: "FOOD",
-        vehicleType: "MOTORCYCLE",
-        status: "PENDING",
-        pickupLocation: MAP_LOCATIONS.pak_ayob,
-        dropoffLocation: MAP_LOCATIONS.flat_sentosa,
-        items: [
-          { id: "p1", name: "Pisang Goreng RM5", quantity: 1, completed: false },
-          { id: "p2", name: "Karipap Kentang", quantity: 5, completed: false }
-        ],
-        fee: 6.00,
-        totalCost: 10.00,
-        notes: "Cari gerai sebelah pokok besar ya, sambal kicap nak lebih.",
-        customerName: "Kak Shida Flat B",
-        customerPhone: "019-2233445",
-        createdAt: new Date().toLocaleTimeString(),
-        progressPercent: 0
-      },
-      {
-        id: "job-2",
-        title: "Angkat Almari Jati & Meja Makan",
-        type: "HEAVY_LIFTING",
-        vehicleType: "LORRY",
-        status: "PENDING",
-        pickupLocation: MAP_LOCATIONS.perabot_jati,
-        dropoffLocation: MAP_LOCATIONS.kondo_harmoni,
-        items: [
-          { id: "a1", name: "Almari Jati 2 Pintu", quantity: 1, completed: false },
-          { id: "a2", name: "Meja Makan Bulat", quantity: 1, completed: false }
-        ],
-        fee: 35.00,
-        totalCost: 0,
-        notes: "Kena bawa tali ikat kuat-kuat atas motor/lori. Saya tolong angkat sekali.",
-        customerName: "Abang Kamal",
-        customerPhone: "012-9988776",
-        createdAt: new Date().toLocaleTimeString(),
-        progressPercent: 0
-      }
-    ];
+  // Tiada tempahan demo — bermula kosong.
 
-    setOrders(initialOrders);
-    
-    // Set up default chats for these orders
-    const initialChats: { [orderId: string]: ChatMessage[] } = {};
-    initialOrders.forEach(o => {
-      initialChats[o.id] = [
-        {
-          id: `sys-${Date.now()}-1`,
-          sender: "system",
-          text: `Tempahan "${o.title}" telah diposkan ke papan tugasan.`,
-          timestamp: o.createdAt
-        }
-      ];
-    });
-    setChats(initialChats);
-  }, []);
 
   // Handle map landmark selection (injects into custom form)
   const handleSelectMapLocation = (location: Location) => {
@@ -194,8 +135,8 @@ export default function App() {
       type: orderData.type || "FOOD",
       vehicleType: orderData.vehicleType || "MOTORCYCLE",
       status: "PENDING",
-      pickupLocation: orderData.pickupLocation || locations.pak_ayob || MAP_LOCATIONS.pak_ayob,
-      dropoffLocation: orderData.dropoffLocation || locations.flat_sentosa || MAP_LOCATIONS.flat_sentosa,
+      pickupLocation: orderData.pickupLocation || Object.values(locations)[0] || { id: "unknown", name: "-", type: "shop", x: 50, y: 50, address: "-" },
+      dropoffLocation: orderData.dropoffLocation || { id: "unknown", name: "-", type: "residential", x: 50, y: 50, address: "-" },
       items: orderData.items || [],
       fee: orderData.fee || 6.00,
       totalCost: orderData.totalCost || 0,
@@ -394,90 +335,34 @@ export default function App() {
     // Reset local overlays (DB kedai/runner tak diusik)
     setRunnerStatOverlay({});
     if (runners.length > 0) setSelectedRunnerId(runners[0].id);
-
-    const initialOrders: Order[] = [
-      {
-        id: "job-1",
-        title: "Belikan Pisang Goreng Panas & Karipap",
-        type: "FOOD",
-        vehicleType: "MOTORCYCLE",
-        status: "PENDING",
-        pickupLocation: MAP_LOCATIONS.pak_ayob,
-        dropoffLocation: MAP_LOCATIONS.flat_sentosa,
-        items: [
-          { id: "p1", name: "Pisang Goreng RM5", quantity: 1, completed: false },
-          { id: "p2", name: "Karipap Kentang", quantity: 5, completed: false }
-        ],
-        fee: 6.00,
-        totalCost: 10.00,
-        notes: "Cari gerai sebelah pokok besar ya, sambal kicap nak lebih.",
-        customerName: "Kak Shida Flat B",
-        customerPhone: "019-2233445",
-        createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        progressPercent: 0
-      },
-      {
-        id: "job-2",
-        title: "Angkat Almari Jati & Meja Makan",
-        type: "HEAVY_LIFTING",
-        vehicleType: "LORRY",
-        status: "PENDING",
-        pickupLocation: MAP_LOCATIONS.perabot_jati,
-        dropoffLocation: MAP_LOCATIONS.kondo_harmoni,
-        items: [
-          { id: "a1", name: "Almari Jati 2 Pintu", quantity: 1, completed: false },
-          { id: "a2", name: "Meja Makan Bulat", quantity: 1, completed: false }
-        ],
-        fee: 35.00,
-        totalCost: 0,
-        notes: "Kena bawa tali ikat kuat-kuat atas motor/lori. Saya tolong angkat sekali.",
-        customerName: "Abang Kamal",
-        customerPhone: "012-9988776",
-        createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        progressPercent: 0
-      }
-    ];
-    setOrders(initialOrders);
-    
-    // reset chats
-    const initialChats: { [orderId: string]: ChatMessage[] } = {};
-    initialOrders.forEach(o => {
-      initialChats[o.id] = [
-        {
-          id: `sys-${Date.now()}-1`,
-          sender: "system",
-          text: `Tempahan "${o.title}" telah diposkan ke papan tugasan.`,
-          timestamp: o.createdAt
-        }
-       ];
-    });
-    setChats(initialChats);
+    setOrders([]);
+    setChats({});
     addSystemNotification("Platform berjaya diset semula ke keadaan asal.");
   };
 
   const handleInjectDemoOrder = () => {
-    const demoTitles = [
-      { title: "Beli Barangan Bundle Di Pasar Karat Rengit", type: "GROCERY" as OrderType, veh: "CAR" as VehicleType, fee: 15.00, cost: 40.00, notes: "Tolong cari baki bundle yang berjenama bundle vintaj di lambak.", customer: "Azrul Rengit", phone: "013-8877665" },
-      { title: "Belikan Rengit Coffee & Roti Bakar", type: "FOOD" as OrderType, veh: "MOTORCYCLE" as VehicleType, fee: 6.00, cost: 14.50, notes: "Kopi original Rengit ais bungkus satu, kopi o suam satu.", customer: "Che Aminah", phone: "017-4455663" },
-      { title: "Tebas Rumput Belakang Rumah", type: "CLEANING" as OrderType, veh: "PICKUP" as VehicleType, fee: 30.00, cost: 0.00, notes: "Mesin rumput saya pinjamkan minyak petrol dah beli.", customer: "Tok Ketua Kampung", phone: "019-1122334" },
-      { title: "Ambil Lesen Tamat Tempoh di Pejabat JPJ", type: "QUEUING" as OrderType, veh: "MOTORCYCLE" as VehicleType, fee: 10.00, cost: 2.00, notes: "Dah beratur tolong hantar ke rumah terus ye saya tak sihat.", customer: "Cikgu Rosli", phone: "011-2334455" }
-    ];
-    const rand = demoTitles[Math.floor(Math.random() * demoTitles.length)];
+    const shopList = Object.values(locations).filter(l => l.type === "shop");
+    if (shopList.length === 0) {
+      alert("Tiada kedai berdaftar. Sila daftar kedai dahulu di Panel Admin.");
+      return;
+    }
+    const pickup = shopList[0];
+    const dropoff: Location = { id: `demo-drop-${Date.now()}`, name: "Alamat Pelanggan Demo", type: "residential", x: 70, y: 70, address: "Pekan Rengit" };
     const newId = `job-demo-${Date.now()}`;
     const newOrder: Order = {
       id: newId,
-      title: rand.title,
-      type: rand.type,
-      vehicleType: rand.veh,
+      title: "Tugasan Demo Admin",
+      type: "ODD_JOBS",
+      vehicleType: "MOTORCYCLE",
       status: "PENDING",
-      pickupLocation: MAP_LOCATIONS.pasar_raya_mesra,
-      dropoffLocation: MAP_LOCATIONS.taman_indah,
-      items: [{ id: "d1", name: rand.title, quantity: 1, completed: false }],
-      fee: rand.fee,
-      totalCost: rand.cost,
-      notes: rand.notes,
-      customerName: rand.customer,
-      customerPhone: rand.phone,
+      pickupLocation: pickup,
+      dropoffLocation: dropoff,
+      items: [],
+      fee: 6.00,
+      totalCost: 0,
+      notes: "Tugasan demo untuk ujian sistem.",
+      customerName: "Pelanggan Demo",
+      customerPhone: "011-0000000",
       createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       progressPercent: 0
     };
@@ -488,6 +373,7 @@ export default function App() {
     }));
     addSystemNotification("Suntikan Job Demo Berjaya!");
   };
+
 
   const handleBroadcastSystemMessage = (text: string) => {
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
