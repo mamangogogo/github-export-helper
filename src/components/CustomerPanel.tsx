@@ -171,16 +171,16 @@ export default function CustomerPanel({
       dropoffLocation,
       items: items,
       fee: fee,
-      totalCost: estimatedCost,
+      totalCost: 0,
       notes: typeText.trim() ? `Jenis: ${typeText.trim()}${notes.trim() ? `\n${notes.trim()}` : ""}` : notes,
-      customerName: customerName.trim() || "Kak Kiah Sentosa",
+      customerName: customerName.trim() || "Pelanggan",
       customerPhone: customerPhone.trim(),
       customerAddress: customerAddress.trim()
     });
 
     // Reset Form
     setTitle("");
-    setItems([{ id: "1", name: "Item Tempahan Baru", quantity: 1 }]);
+    setItems([]);
     setNotes("");
   };
 
