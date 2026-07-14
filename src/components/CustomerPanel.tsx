@@ -149,7 +149,7 @@ export default function CustomerPanel({
             y: 30,
             address: pickupText.trim(),
           }
-        : currentLocations[pickupId] || availableLocs[0];
+        : currentLocations[pickupId] || Object.values(currentLocations)[0] || { id: "unknown", name: "-", type: "shop", x: 50, y: 50, address: "-" };
 
     // Destinasi hantar: guna alamat pelanggan
     const dropoffLocation: Location = {
