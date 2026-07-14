@@ -20,44 +20,41 @@ import {
 } from "lucide-react";
 
 export default function App() {
+  const navigate = useNavigate();
+  const { session, role, loading: authLoading, signOut } = useSession();
+
   const [activeMode, setActiveMode] = useState<"customer" | "runner" | "admin">("customer");
   const [weather, setWeather] = useState<"sunny" | "rainy">("sunny");
   const [demandLevel, setDemandLevel] = useState<"normal" | "high" | "peak">("high");
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedMapLocation, setSelectedMapLocation] = useState<Location | null>(null);
-  
-  // Dynamic Locations list state
-  const [locations, setLocations] = useState<{ [key: string]: Location }>(MAP_LOCATIONS);
+
+  // DB-backed shops (merged with the built-in map locations for demo)
+  const { shops: dbShops, addShop, deleteShop } = useShops();
+  const locations: { [key: string]: Location } = { ...MAP_LOCATIONS, ...dbShops };
 
   // Chat state
   const [chattingOrderId, setChattingOrderId] = useState<string | null>(null);
   const [chats, setChats] = useState<{ [orderId: string]: ChatMessage[] }>({});
   const [isCustomerTyping, setIsCustomerTyping] = useState(false);
 
-  // Multiple Runners State
-  const [runners, setRunners] = useState<Runner[]>([
-    {
-      id: "runner_1",
-      name: "Ahmad Safwan (AS)",
-      phone: "013-4567890",
-      vehicleType: "MOTORCYCLE",
-      vehicles: ["MOTORCYCLE", "CAR"],
-      status: "ACTIVE",
-      password: "123456",
-      stats: {
-        completedDeliveries: 3,
-        totalEarnings: 42.00,
-        activeStreak: 2,
-        rating: 4.9,
-        todayEarnings: 15.00,
-        level: 3,
-        fuelSaved: 1.4
-      }
-    }
-  ]);
+  // DB-backed runners with local stat overlay (stats increment locally until orders persist)
+  const { runners: dbRunners, addRunner, deleteRunner, updateRunnerVehicles } = useRunnersDB();
+  const [runnerStatOverlay, setRunnerStatOverlay] = useState<{ [id: string]: Partial<RunnerStats> }>({});
+  const runners: Runner[] = dbRunners.length > 0
+    ? dbRunners.map(r => ({ ...r, stats: { ...r.stats, ...(runnerStatOverlay[r.id] || {}) } }))
+    : [];
+  const setRunners = (_: any) => { /* handled via DB hook; overlay used for stats */ };
 
-  const [selectedRunnerId, setSelectedRunnerId] = useState<string>("runner_1");
+  const [selectedRunnerId, setSelectedRunnerId] = useState<string>("");
   const [loggedInRunnerId, setLoggedInRunnerId] = useState<string | null>(null);
+
+  // Default-select first runner once loaded
+  useEffect(() => {
+    if (!selectedRunnerId && runners.length > 0) {
+      setSelectedRunnerId(runners[0].id);
+    }
+  }, [runners, selectedRunnerId]);
 
   // Financial configurations
   const [minFee, setMinFee] = useState<number>(5.00);
