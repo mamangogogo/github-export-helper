@@ -64,7 +64,8 @@ export default function CustomerPanel({
 
   // Custom Form States
   const [title, setTitle] = useState("");
-  const [type, setType] = useState<OrderType>("FOOD");
+  const [type] = useState<OrderType>("ODD_JOBS");
+  const [typeText, setTypeText] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("MOTORCYCLE");
   const [pickupId, setPickupId] = useState("pak_ayob");
   const [dropoffId, setDropoffId] = useState("flat_sentosa");
@@ -145,7 +146,7 @@ export default function CustomerPanel({
       items: items,
       fee: fee,
       totalCost: estimatedCost,
-      notes: notes,
+      notes: typeText.trim() ? `Jenis: ${typeText.trim()}${notes.trim() ? `\n${notes.trim()}` : ""}` : notes,
       customerName: customerName.trim() || "Kak Kiah Sentosa",
       customerPhone: customerPhone.trim(),
       customerAddress: customerAddress.trim()
@@ -447,19 +448,13 @@ export default function CustomerPanel({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Jenis Tugasan</label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value as OrderType)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                >
-                  <option value="FOOD">Beli Makanan (Food)</option>
-                  <option value="HEAVY_LIFTING">Angkat Perabot (Heavy)</option>
-                  <option value="CLEANING">Potong Rumput/Kemas (Cleaning)</option>
-                  <option value="QUEUING">Beratur Kaunter (Queuing)</option>
-                  <option value="GROCERY">Runcit/Pasar (Grocery)</option>
-                  <option value="PARCEL">Penghantaran Dokumen (Parcel)</option>
-                  <option value="ODD_JOBS">Lain-lain Tugas (Odd Jobs)</option>
-                </select>
+                <input
+                  type="text"
+                  value={typeText}
+                  onChange={(e) => setTypeText(e.target.value)}
+                  placeholder="cth: Beli ubat di farmasi"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                />
               </div>
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex items-center justify-between">
