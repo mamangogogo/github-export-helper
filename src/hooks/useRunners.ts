@@ -26,7 +26,7 @@ function rowToRunner(row: RunnerRow): Runner {
     phone: row.phone,
     vehicleType: row.vehicle_type as VehicleType,
     vehicles: (row.vehicles as VehicleType[]) || [row.vehicle_type as VehicleType],
-    status: (row.status as "ACTIVE" | "OFFLINE") || "ACTIVE",
+    status: (row.status as "ACTIVE" | "OFFLINE" | "CUTI") || "ACTIVE",
     stats: {
       completedDeliveries: row.completed_deliveries,
       totalEarnings: Number(row.total_earnings),
@@ -98,5 +98,22 @@ export function useRunners() {
     await refresh();
   };
 
-  return { runners, loading, addRunner, deleteRunner, updateRunnerVehicles, refresh };
+  const updateRunnerStatus = async (id: string, status: "ACTIVE" | "OFFLINE" | "CUTI") => {
+    const { error } = await supabase
+      .from("runners")
+      .update({ status })
+      .eq("id", id);
+    if (error) throw error;
+    await refresh();
+  };
+
+  const resetRunnerEarnings = async (id: string, scope: "today" | "total") => {
+    const patch = scope === "today" ? { today_earnings: 0 } : { today_earnings: 0, total_earnings: 0 };
+    const { error } = await supabase.from("runners").update(patch).eq("id", id);
+    if (error) throw error;
+    await refresh();
+  };
+
+  return { runners, loading, addRunner, deleteRunner, updateRunnerVehicles, updateRunnerStatus, resetRunnerEarnings, refresh };
+
 }

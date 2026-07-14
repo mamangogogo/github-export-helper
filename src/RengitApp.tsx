@@ -41,7 +41,7 @@ export default function App() {
   const [isCustomerTyping, setIsCustomerTyping] = useState(false);
 
   // DB-backed runners with local stat overlay (stats increment locally until orders persist)
-  const { runners: dbRunners, addRunner, deleteRunner, updateRunnerVehicles } = useRunnersDB();
+  const { runners: dbRunners, addRunner, deleteRunner, updateRunnerVehicles, updateRunnerStatus, resetRunnerEarnings } = useRunnersDB();
   const [runnerStatOverlay, setRunnerStatOverlay] = useState<{ [id: string]: Partial<RunnerStats> }>({});
   const runners: Runner[] = dbRunners.length > 0
     ? dbRunners.map(r => ({ ...r, stats: { ...r.stats, ...(runnerStatOverlay[r.id] || {}) } }))
@@ -579,6 +579,39 @@ export default function App() {
     }
   };
 
+  const handleUpdateRunnerStatus = async (runnerId: string, status: "ACTIVE" | "OFFLINE" | "CUTI") => {
+    try {
+      await updateRunnerStatus(runnerId, status);
+      const label = status === "ACTIVE" ? "Aktif" : status === "OFFLINE" ? "Offline" : "Cuti";
+      addSystemNotification(`Status runner dikemaskini: ${label}.`);
+    } catch (err: any) {
+      alert(`Gagal kemaskini status: ${err?.message || "ralat"}`);
+    }
+  };
+
+  const handleMarkRunnerPaid = async (runnerId: string, scope: "today" | "total") => {
+    try {
+      await resetRunnerEarnings(runnerId, scope);
+      setRunnerStatOverlay(o => {
+        const next = { ...o };
+        if (next[runnerId]) {
+          next[runnerId] = {
+            ...next[runnerId],
+            todayEarnings: 0,
+            ...(scope === "total" ? { totalEarnings: 0 } : {}),
+          };
+        }
+        return next;
+      });
+      addSystemNotification(scope === "today" ? "Gaji harian ditandakan sebagai dibayar." : "Semua baki ditandakan sebagai dibayar.");
+    } catch (err: any) {
+      alert(`Gagal: ${err?.message || "ralat"}`);
+    }
+  };
+
+
+
+
   const handleUpdateRunnerVehicle = (runnerId: string, vehicleType: VehicleType) => {
     // Kenderaan aktif hanya UI-level (tidak persist)
     const vehMalay = vehicleType === "MOTORCYCLE" ? "Motosikal" : vehicleType === "CAR" ? "Kereta" : vehicleType === "PICKUP" ? "Pikap" : "Lori";
@@ -842,6 +875,9 @@ export default function App() {
               onRegisterRunner={handleRegisterRunner}
               onDeleteRunner={handleDeleteRunner}
               onUpdateRunnerVehicles={handleUpdateRunnerVehicles}
+              onUpdateRunnerStatus={handleUpdateRunnerStatus}
+              onMarkRunnerPaid={handleMarkRunnerPaid}
+
               minFee={minFee}
               onChangeMinFee={setMinFee}
               commissionRate={commissionRate}

@@ -30,6 +30,9 @@ interface AdminPanelProps {
   onRegisterRunner: (runner: Runner) => void;
   onDeleteRunner: (id: string) => void;
   onUpdateRunnerVehicles?: (runnerId: string, vehicles: VehicleType[]) => void;
+  onUpdateRunnerStatus?: (runnerId: string, status: "ACTIVE" | "OFFLINE" | "CUTI") => void;
+  onMarkRunnerPaid?: (runnerId: string, scope: "today" | "total") => void;
+
   minFee: number;
   onChangeMinFee: (fee: number) => void;
   commissionRate: number;
@@ -68,6 +71,9 @@ export default function AdminPanel({
   onRegisterRunner,
   onDeleteRunner,
   onUpdateRunnerVehicles,
+  onUpdateRunnerStatus,
+  onMarkRunnerPaid,
+
   minFee,
   onChangeMinFee,
   commissionRate,
@@ -1156,6 +1162,115 @@ export default function AdminPanel({
         </div>
 
       </div>
+
+      {/* SECTION: Bayaran Runner (Income − 18% Admin) */}
+      <div className="bg-slate-900 border border-slate-850 rounded-3xl p-5 sm:p-6 shadow-xl">
+        <div className="flex items-start justify-between gap-3 mb-4 flex-wrap">
+          <div>
+            <h2 className="text-sm font-black text-white uppercase tracking-wider font-mono flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-emerald-400" />
+              Bayaran Runner (Gaji)
+            </h2>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Pendapatan runner setelah tolak <span className="text-amber-400 font-bold">18% komisen admin</span>. Tekan "Dah Bayar" bila dah settle gaji.
+            </p>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-right">
+            <p className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Jumlah Perlu Dibayar</p>
+            <p className="text-sm font-black text-emerald-400 font-mono">
+              RM {runners.reduce((sum, r) => sum + r.stats.totalEarnings * 0.82, 0).toFixed(2)}
+            </p>
+          </div>
+        </div>
+
+        {runners.length === 0 ? (
+          <p className="text-xs text-slate-500 text-center py-6">Belum ada runner berdaftar.</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {runners.map((r) => {
+              const gross = r.stats.totalEarnings;
+              const adminCut = gross * 0.18;
+              const net = gross * 0.82;
+              const todayGross = r.stats.todayEarnings;
+              const todayNet = todayGross * 0.82;
+              const statusColor =
+                r.status === "ACTIVE"
+                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
+                  : r.status === "CUTI"
+                  ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+                  : "bg-slate-800 text-slate-400 border-slate-700";
+              const statusLabel = r.status === "ACTIVE" ? "Aktif" : r.status === "CUTI" ? "Cuti" : "Offline";
+              const nextStatus: "ACTIVE" | "OFFLINE" | "CUTI" =
+                r.status === "ACTIVE" ? "CUTI" : r.status === "CUTI" ? "OFFLINE" : "ACTIVE";
+              return (
+                <div
+                  key={r.id}
+                  className="bg-slate-950 border border-slate-850 rounded-2xl p-3 flex flex-col sm:flex-row sm:items-center gap-3"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-black text-white truncate">{r.name}</span>
+                      <span className={`text-[9px] font-black uppercase font-mono px-1.5 py-0.5 rounded border ${statusColor}`}>
+                        {statusLabel}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-slate-500 mt-0.5 font-mono">{r.phone}</p>
+                    <div className="grid grid-cols-3 gap-2 mt-2 text-[10px]">
+                      <div>
+                        <p className="text-slate-500 uppercase tracking-wide">Kasar</p>
+                        <p className="text-slate-300 font-mono font-bold">RM {gross.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-amber-500/70 uppercase tracking-wide">− 18%</p>
+                        <p className="text-amber-400 font-mono font-bold">RM {adminCut.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-emerald-500/70 uppercase tracking-wide">Bersih</p>
+                        <p className="text-emerald-400 font-mono font-black">RM {net.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    {todayGross > 0 && (
+                      <p className="text-[9px] text-slate-500 mt-1.5 font-mono">
+                        Hari ini: RM {todayNet.toFixed(2)} bersih (RM {todayGross.toFixed(2)} kasar)
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-1.5 sm:items-stretch">
+                    <button
+                      type="button"
+                      onClick={() => onUpdateRunnerStatus?.(r.id, nextStatus)}
+                      className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg text-[10px] font-black text-slate-300 uppercase tracking-wider cursor-pointer transition-all"
+                      title={`Tukar status → ${nextStatus === "ACTIVE" ? "Aktif" : nextStatus === "CUTI" ? "Cuti" : "Offline"}`}
+                    >
+                      Tukar Status
+                    </button>
+                    <button
+                      type="button"
+                      disabled={todayGross <= 0}
+                      onClick={() => onMarkRunnerPaid?.(r.id, "today")}
+                      className="px-2.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 disabled:opacity-40 disabled:cursor-not-allowed border border-emerald-600/30 rounded-lg text-[10px] font-black text-emerald-300 uppercase tracking-wider cursor-pointer transition-all"
+                      title="Tandakan gaji hari ini dah dibayar"
+                    >
+                      Bayar Harian
+                    </button>
+                    <button
+                      type="button"
+                      disabled={gross <= 0}
+                      onClick={() => onMarkRunnerPaid?.(r.id, "total")}
+                      className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all"
+                      title="Reset semua baki (mingguan/settle semua)"
+                    >
+                      Bayar Semua
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+
 
       {/* CUSTOM CONFIRMATION MODAL FOR LOCATIONS DELETION */}
       {locationToDelete && (
