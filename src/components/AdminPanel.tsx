@@ -84,6 +84,9 @@ export default function AdminPanel({
 
   // Deletion confirmation state
   const [locationToDelete, setLocationToDelete] = useState<Location | null>(null);
+  const [runnerToDelete, setRunnerToDelete] = useState<Runner | null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+
 
   // Shop state form
   const [shopName, setShopName] = useState("");
