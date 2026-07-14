@@ -11,11 +11,11 @@ export const Route = createFileRoute("/")({
         content:
           "Aplikasi runner untuk penghantaran makanan dan barangan dengan simulasi peta interaktif dan pelanggan pintar bertenaga AI.",
       },
-      { property: "og:title", content: "Rengit Runner" },
+      { property: "og:title", content: "Rengit Runner - Servis Penghantaran Mudah & Pantas" },
       {
         property: "og:description",
         content:
-          "Aplikasi runner untuk penghantaran makanan dan barangan di Rengit.",
+          "Aplikasi runner untuk penghantaran makanan dan barangan dengan simulasi peta interaktif dan pelanggan pintar bertenaga AI.",
       },
     ],
   }),
