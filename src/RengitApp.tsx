@@ -380,29 +380,9 @@ export default function App() {
   };
 
   const handleResetPlatformData = () => {
-    // Reset locations
-    setLocations(MAP_LOCATIONS);
-    
-    // Reset runners list
-    setRunners([
-      {
-        id: "runner_1",
-        name: "Ahmad Safwan (AS)",
-        phone: "013-4567890",
-        vehicleType: "MOTORCYCLE",
-        status: "ACTIVE",
-        stats: {
-          completedDeliveries: 3,
-          totalEarnings: 42.00,
-          activeStreak: 2,
-          rating: 4.9,
-          todayEarnings: 15.00,
-          level: 3,
-          fuelSaved: 1.4
-        }
-      }
-    ]);
-    setSelectedRunnerId("runner_1");
+    // Reset local overlays (DB kedai/runner tak diusik)
+    setRunnerStatOverlay({});
+    if (runners.length > 0) setSelectedRunnerId(runners[0].id);
 
     const initialOrders: Order[] = [
       {
