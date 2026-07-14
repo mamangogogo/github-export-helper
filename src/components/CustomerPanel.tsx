@@ -58,26 +58,23 @@ export default function CustomerPanel({
   const [activeTab, setActiveTab] = useState<"template" | "custom">("template");
 
   // Customer Contact Info (Wajib WhatsApp)
-  const [customerName, setCustomerName] = useState("Kak Kiah Sentosa");
+  const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("Tingkat 3, Blok B, Flat Sentosa, Pekan Rengit");
+  const [customerAddress, setCustomerAddress] = useState("");
 
   // Custom Form States
   const [title, setTitle] = useState("");
   const [type] = useState<OrderType>("ODD_JOBS");
   const [typeText, setTypeText] = useState("");
   const [vehicleType, setVehicleType] = useState<VehicleType>("MOTORCYCLE");
-  const [pickupId, setPickupId] = useState("pak_ayob");
+  const [pickupId, setPickupId] = useState("");
   const [pickupText, setPickupText] = useState("");
-  const [dropoffId, setDropoffId] = useState("flat_sentosa");
+  const [dropoffId, setDropoffId] = useState("");
   const [notes, setNotes] = useState("");
   const [fee, setFee] = useState(6.00);
-  const [estimatedCost, setEstimatedCost] = useState(15.00);
-  
+
   // Custom Items
-  const [items, setItems] = useState<OrderItem[]>([
-    { id: "1", name: "Item Tempahan 1", quantity: 1 }
-  ]);
+  const [items, setItems] = useState<OrderItem[]>([]);
   const [newItemName, setNewItemName] = useState("");
   const [newItemQty, setNewItemQty] = useState(1);
 
