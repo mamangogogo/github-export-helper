@@ -355,52 +355,15 @@ export default function App() {
     }));
   };
 
-  // Send message and trigger Gemini customer replica
+  // Send message (manual chat between runner and customer/admin)
   const handleSendMessage = async (orderId: string, text: string) => {
     const targetOrder = orders.find(o => o.id === orderId);
     if (!targetOrder) return;
 
     const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    // 1. Add runner message
     appendChatMessage(orderId, "runner", text, timeStr);
-
-    // 2. Trigger simulated typing
-    setIsCustomerTyping(true);
-
-    try {
-      // 3. Make server proxy request
-      const response = await fetch("/api/customer/reply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderDetails: {
-            title: targetOrder.title,
-            items: targetOrder.items.map(i => `${i.quantity}x ${i.name}`).join(", "),
-            notes: targetOrder.notes,
-            vehicleType: targetOrder.vehicleType
-          },
-          runnerStatus: targetOrder.status,
-          chatHistory: chats[orderId] || [],
-          latestMessage: text
-        })
-      });
-
-      const data = await response.json();
-      setIsCustomerTyping(false);
-      
-      // 4. Post customer response
-      appendChatMessage(orderId, "customer", data.reply || "Cun bro, tq!", timeStr);
-
-    } catch (err) {
-      console.error("Failed to connect with simulation replica:", err);
-      setIsCustomerTyping(false);
-      // Fallback response on failure
-      setTimeout(() => {
-        appendChatMessage(orderId, "customer", "Cun bos, roger nnt dkt mana.", timeStr);
-      }, 1000);
-    }
   };
+
 
   const handleOpenChat = (order: Order) => {
     setChattingOrderId(order.id);
