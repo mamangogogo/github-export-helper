@@ -126,15 +126,13 @@ export default function CustomerPanel({
       return;
     }
 
-    if (!title.trim() || items.length === 0) return;
+    if (!title.trim()) return;
 
     if (fee < minFee) {
       alert(`Maaf, upah minimum yang ditetapkan oleh Admin semasa ialah RM ${minFee.toFixed(2)}. Sila naikkan baki upah.`);
       return;
     }
 
-    const availableLocs = Object.values(currentLocations);
-    if (availableLocs.length === 0) return;
 
     // Titik mula: gunakan kedai berdaftar jika nama sepadan, jika tidak bina lokasi custom dari teks
     const matchedShop = Object.values(currentLocations).find(
